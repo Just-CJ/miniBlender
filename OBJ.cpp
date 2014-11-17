@@ -7,7 +7,7 @@
 #include <QRgb>
 #include <dshow.h>
 
-//#define GLUT_DISABLE_ATEXIT_HACK
+#define GLUT_DISABLE_ATEXIT_HACK
 #include <GL/glut.h>
 //#include <GL/freeglut.h>
 

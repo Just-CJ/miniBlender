@@ -5,6 +5,7 @@
 #include <QtOpenGL>
 #include <QWidget>
 #include <string>
+#define GLUT_DISABLE_ATEXIT_HACK
 #include <GL/glut.h>
 //#include <gl/freeglut.h>
 

@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-    glutInit(&argc, argv); //initialize glut
+    //glutInit(&argc, argv); //initialize glut
 
     QApplication a(argc, argv);
     openglWindow w;
