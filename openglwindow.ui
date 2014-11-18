@@ -20,7 +20,7 @@
    <string>openglWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>24</x>
@@ -98,6 +98,7 @@
      <string>File</string>
     </property>
     <addaction name="actionImport"/>
+    <addaction name="actionExport"/>
    </widget>
    <addaction name="menu"/>
   </widget>
@@ -113,6 +114,11 @@
   <action name="actionImport">
    <property name="text">
     <string>import</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>export</string>
    </property>
   </action>
  </widget>

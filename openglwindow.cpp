@@ -7,7 +7,7 @@ openglWindow::openglWindow(QWidget *parent) :
     ui(new Ui::openglWindow)
 {
     ui->setupUi(this);
-    widget = new GLWidget((QGLWidget*)ui->widget);
+    widget = new GLWidget();
     widget->setObjectName(QStringLiteral("opengl"));
     widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->verticalLayout_3->addWidget(widget);
@@ -62,4 +62,14 @@ void openglWindow::on_Light_BTN_clicked()
       widget->enableLight = true;
       ui->Light_BTN->setText("Light off");
     }
+}
+
+void openglWindow::on_actionExport_triggered()
+{
+  QString fileName = QFileDialog::getSaveFileName(this,
+                                                  tr("save file"),
+                                                  "E:/Study/ComputerGraphics/qtopengl/OBJ/export",
+                                                  tr("OBJ file(*.obj)"));
+  exportOBJ(fileName);
+
 }

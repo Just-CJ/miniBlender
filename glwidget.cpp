@@ -254,8 +254,13 @@ void GLWidget::paintGL()
     drawCoordinate(); //画一个坐标系
     glScalef(0.001,0.001,0.001);
     //glTranslatef(-2.0, -8.0, 0.0);
+
     glRotatef(180.0+CurrentAngleZ*180.0/M_PI, 0, 1, 0);
+
+    glRotatef(90.0-CurrentAngleY*180.0/M_PI, 1, 0, 0);
     glTranslatef(-2.0, -8.0, 0.0);
+
+
     if(models.size()>0) models[0].callDisplayList();
     glPopMatrix();
 

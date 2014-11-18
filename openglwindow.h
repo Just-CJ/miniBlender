@@ -25,6 +25,8 @@ private slots:
 
     void on_Light_BTN_clicked();
 
+    void on_actionExport_triggered();
+
 private:
     Ui::openglWindow *ui;
 };

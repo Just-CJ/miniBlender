@@ -4,8 +4,8 @@
 #include <QString>
 #include <QDebug>
 #include <QImage>
-#include <QRgb>
-#include <dshow.h>
+#include <QFileDialog>
+
 
 #define GLUT_DISABLE_ATEXIT_HACK
 #include <GL/glut.h>
@@ -19,6 +19,13 @@ using namespace std;
 
 vector<model> models;
 
+model::model(){
+  objCenter[0] = 0.0;
+  objCenter[1] = 0.0;
+  objCenter[2] = 0.0;
+  DisplayListID = 0;
+}
+
 model::~model(){
   this->vpoints.clear();
   this->vnormals.clear();
@@ -29,7 +36,7 @@ model::~model(){
 
   this->mtls.clear();
   this->objects.clear();
-  if(!DisplayListID) glDeleteLists(DisplayListID, 1);
+  //if(DisplayListID) glDeleteLists(DisplayListID, 1);//删除显示列表
 }
 
 
@@ -42,6 +49,9 @@ void loadOBJ(string fileAddr){
 
   bool objStart = false;
   unsigned objSize = 0;
+  unsigned v_num = 0;
+  unsigned vn_num = 0;
+  unsigned vt_num = 0;
   string mtlname;
 
   ifstream infile(fileAddr.c_str()); //打开obj文件
@@ -55,24 +65,27 @@ void loadOBJ(string fileAddr){
 
       if(key == "v"){  //顶点坐标
           vpoint v;
+          v_num++;
           is>>v.x>>v.y>>v.z;
           models.back().vpoints.push_back(v);
         }
       else if(key == "vn"){ //法向量坐标
           vnormal vn;
+          vn_num++;
           is>>vn.x>>vn.y>>vn.z;
           models.back().vnormals.push_back(vn);
         }
       else if(key == "vt"){  //纹理坐标
           vtex vt;
           is>>vt.u>>vt.v;
+          vt_num++;
           models.back().vtexs.push_back(vt);
         }
       else if(key == "f"){//面
           objSize++;
           face f;
           for(int i=0; i<4; i++){
-              if(is.tellg()){
+              if(is.tellg()>0){
                   is>>subline;
                   int c = count(subline.begin(), subline.end(), '/');
                   if(c == 0){ //没有'/' 只包含顶点坐标索引
@@ -118,17 +131,26 @@ void loadOBJ(string fileAddr){
                   if(models.back().mtls[i].mtlname == mtlname){
                       object obj((object&)models.back().mtls[i]); //从mtl类创建一个object类
                       obj.size = objSize;
+                      obj.v_num = v_num;
+                      obj.vn_num = vn_num;
+                      obj.vt_num = vt_num;
                       models.back().objects.push_back(obj);
                       break;
                     }
                 }
               is>>mtlname;
               objSize = 0;
+              v_num = 0;
+              vn_num = 0;
+              vt_num = 0;
             }
           else{//第一个object
               objStart = true;
               is>>mtlname;
               objSize = 0;
+              //v_num = 0;
+              //vn_num = 0;
+              //vt_num = 0;
             }
         }
     }
@@ -137,6 +159,9 @@ void loadOBJ(string fileAddr){
           if(models.back().mtls[i].mtlname == mtlname){
               object obj((object&)models.back().mtls[i]); //从mtl类创建一个object类
               obj.size = objSize;
+              obj.v_num = v_num;
+              obj.vn_num = vn_num;
+              obj.vt_num = vt_num;
               models.back().objects.push_back(obj);
               break;
             }
@@ -378,6 +403,7 @@ void model::drawOBJ(){
                 glVertex3f(vpoints[faces[index].index_v[2]-1].x, vpoints[faces[index].index_v[2]-1].y, vpoints[faces[index].index_v[2]-1].z);
 
                 if(faces[index].index_v[3]){//若第四个点存在
+                    //qDebug()<<"test";
                   if(faces[index].index_vn[3])//若法向量索引存在
                     glNormal3f(vnormals[faces[index].index_vn[3]-1].x, vnormals[faces[index].index_vn[3]-1].y, vnormals[faces[index].index_vn[3]-1].z);
                   if(objects[i].texID)
@@ -445,4 +471,130 @@ void model::genDisplayList(){
 
 void model::callDisplayList(){
   glCallList(DisplayListID);
+}
+
+void exportOBJ(QString fileName){
+  QFile file(fileName);
+
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+      return;
+
+  QTextStream out(&file);
+
+  for(unsigned int i=0; i<models.size(); i++){//遍历输出model
+      if(models[i].objects.size()>0){
+          unsigned int index_v=0, index_vn=0, index_vt=0, index_f=0;
+          for(unsigned int j=0; j<models[i].objects.size(); j++){//遍历输出object
+
+              out<<"# object"<<" MODEL_"<<i<<"_OBJECT_"<<j<<endl;
+              for(unsigned int k=0; k<models[i].objects[j].v_num; k++){//遍历输出v
+                out<<"v "<<models[i].vpoints[index_v].x<<" "<<models[i].vpoints[index_v].y<<" "<<models[i].vpoints[index_v].z<<endl;
+                index_v++;
+                }
+
+              out<<endl;
+
+              for(unsigned int k=0; k<models[i].objects[j].vn_num; k++){//遍历输出vn
+                out<<"vn "<<models[i].vnormals[index_vn].x<<" "<<models[i].vnormals[index_vn].y<<" "<<models[i].vnormals[index_vn].z<<endl;
+                index_vn++;
+                }
+
+              out<<endl;
+
+              for(unsigned int k=0; k<models[i].objects[j].vt_num; k++){//遍历输出vt
+                out<<"vt "<<models[i].vtexs[index_vt].u<<" "<<models[i].vtexs[index_vt].v<<" "<<0<<endl;
+                index_vt++;
+                }
+
+              out<<endl;
+              out<<"usemtl "<<QString::fromStdString(models[i].objects[j].mtlname)<<endl;
+
+              for(unsigned int k=0; k<models[i].objects[j].size; k++){//遍历输出f
+                out<<"f ";
+                for(unsigned int m=0; m<3; m++){
+                  out<<models[i].faces[index_f].index_v[m];
+                  if(models[i].faces[index_f].index_vt[m]){
+                    out<<"/"<<models[i].faces[index_f].index_vt[m];
+                    if(models[i].faces[index_f].index_vn[m])
+                      out<<"/"<<models[i].faces[index_f].index_vn[m];
+                    if(m<2) out<<" ";
+                    }
+                  else{
+                      if(models[i].faces[index_f].index_vn[m])
+                        out<<"//"<<models[i].faces[index_f].index_vn[m];
+                      if(m<2) out<<" ";
+                      }
+                  }
+                if(models[i].faces[index_f].index_v[3]){
+                    out<<" ";
+                    out<<models[i].faces[index_f].index_v[3];
+                    if(models[i].faces[index_f].index_vt[3]){
+                      out<<"/"<<models[i].faces[index_f].index_vt[3];
+                      if(models[i].faces[index_f].index_vn[3])
+                        out<<"/"<<models[i].faces[index_f].index_vn[3];
+                    }
+                    else{
+                        if(models[i].faces[index_f].index_vn[3])
+                          out<<"//"<<models[i].faces[index_f].index_vn[3];
+                        }
+                  }
+                out<<endl;
+                index_f++;
+                }
+
+              out<<endl;
+            }
+        }
+      else{//没有标记usemtl的文件
+          out<<"# object"<<" MODEL_"<<i<<endl;
+          for(unsigned int k=0; k<models[i].vpoints.size(); k++){//遍历输出v
+            out<<"v "<<models[i].vpoints[k].x<<" "<<models[i].vpoints[k].y<<" "<<models[i].vpoints[k].z<<endl;
+            }
+          out<<endl;
+          for(unsigned int k=0; k<models[i].vnormals.size(); k++){//遍历输出vn
+            out<<"vn "<<models[i].vnormals[k].x<<" "<<models[i].vnormals[k].y<<" "<<models[i].vnormals[k].z<<endl;
+            }
+          out<<endl;
+          for(unsigned int k=0; k<models[i].vtexs.size(); k++){//遍历输出vt
+            out<<"vt "<<models[i].vtexs[k].u<<" "<<models[i].vtexs[k].v<<" "<<0<<endl;
+            }
+          out<<endl;
+          for(unsigned int k=0; k<models[i].faces.size(); k++){//遍历输出f
+            out<<"f ";
+            for(unsigned int m=0; m<3; m++){
+              out<<models[i].faces[k].index_v[m];
+              if(models[i].faces[k].index_vt[m]){
+                out<<"/"<<models[i].faces[k].index_vt[m];
+                if(models[i].faces[k].index_vn[m])
+                  out<<"/"<<models[i].faces[k].index_vn[m];
+                if(m<2) out<<" ";
+                }
+              else{
+                  if(models[i].faces[k].index_vn[m])
+                    out<<"//"<<models[i].faces[k].index_vn[m];
+                  if(m<2) out<<" ";
+                  }
+              }
+            if(models[i].faces[k].index_v[3]){
+                out<<" ";
+                out<<models[i].faces[k].index_v[3];
+                if(models[i].faces[k].index_vt[3]){
+                  out<<"/"<<models[i].faces[k].index_vt[3];
+                  if(models[i].faces[k].index_vn[3])
+                    out<<"/"<<models[i].faces[k].index_vn[3];
+                }
+                else{
+                    if(models[i].faces[k].index_vn[3])
+                      out<<"//"<<models[i].faces[k].index_vn[3];
+                    }
+              }
+            out<<endl;
+            }
+
+          out<<endl;
+        }
+    }
+
+
+  file.close();
 }

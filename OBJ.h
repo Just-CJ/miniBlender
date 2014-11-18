@@ -41,6 +41,9 @@ class mtl{
 class object : public mtl{
   public:
     unsigned int size;
+    unsigned int v_num;
+    unsigned int vn_num;
+    unsigned int vt_num;
 };
 
 class model{//基本对象
@@ -56,7 +59,7 @@ class model{//基本对象
     void genDisplayList();
     void drawOBJ();
     void callDisplayList();
-
+    model();
     ~model();
 
   private:
@@ -70,6 +73,8 @@ void loadMTL(std::string objAddr, std::string mtlAddr);
 void loadTex(unsigned int texID, QDir workdir, std::string texAddr);
 
 void drawCoordinate();
+
+void exportOBJ(QString fileName);
 
 
 
