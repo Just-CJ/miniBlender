@@ -48,6 +48,14 @@ class object : public mtl{
 
 class model{//基本对象
   public:
+    bool isSelected;
+    float offset_x, offset_y, offset_z;
+    float scale;
+    float CurrentAngleZ, CurrentAngleY;
+    float LastAngleZ, LastAngleY;
+    float min_X, max_X, min_Y, max_Y, min_Z, max_Z;
+    float objCenter[3];
+
     std::vector<vpoint> vpoints;
     std::vector<vnormal> vnormals;
     std::vector<vtex> vtexs;
@@ -63,7 +71,7 @@ class model{//基本对象
     ~model();
 
   private:
-    float objCenter[3];
+
     int DisplayListID;
 };
 

@@ -42,6 +42,10 @@ protected:
     void wheelEvent(QWheelEvent *e);
     void timerEvent(QTimerEvent *);
     void setLight();
+    void selectModel(int x, int y);
+    void processHits(GLint hits, GLuint buffer[]);
+    void drawSelectCube();
+    void drawGrid(GLfloat width, int num);
 
 
 
@@ -51,6 +55,10 @@ protected:
 
 private:
     Ui::GLWidget *ui;
+
+    unsigned int selectedID;//场景中被选中的物体
+
+    GLfloat whRatio;
 
     GLfloat main_scale;
 
@@ -84,6 +92,11 @@ private:
     GLfloat LastMain_x;          //上一次全局xyz偏移
     GLfloat LastMain_y;
     GLfloat LastMain_z;
+
+    GLfloat LastOBJ_x;          //上一次选中物体xyz偏移
+    GLfloat LastOBJ_y;
+    GLfloat LastOBJ_z;
+
 
     bool objRotate;
     GLfloat objRotate_x;

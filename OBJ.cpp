@@ -20,6 +20,21 @@ using namespace std;
 vector<model> models;
 
 model::model(){
+  isSelected = false;
+
+  min_X = max_X = min_Y = max_Y = min_Z = max_Z = 0.0;
+
+  offset_x = 0.0;
+  offset_y = 0.0;
+  offset_z = 0.0;
+
+  CurrentAngleZ = 0.0;
+  CurrentAngleY = 90.0;
+  LastAngleZ = 0.0;
+  LastAngleY = 90.0;
+
+
+  scale = 1.0;
   objCenter[0] = 0.0;
   objCenter[1] = 0.0;
   objCenter[2] = 0.0;
@@ -67,6 +82,12 @@ void loadOBJ(string fileAddr){
           vpoint v;
           v_num++;
           is>>v.x>>v.y>>v.z;
+          if(v.x<models.back().min_X) models.back().min_X = v.x;
+          if(v.x>models.back().max_X) models.back().max_X = v.x;
+          if(v.y<models.back().min_Y) models.back().min_Y = v.y;
+          if(v.y>models.back().max_Y) models.back().max_Y = v.y;
+          if(v.z<models.back().min_Z) models.back().min_Z = v.z;
+          if(v.z>models.back().max_Z) models.back().max_Z = v.z;
           models.back().vpoints.push_back(v);
         }
       else if(key == "vn"){ //法向量坐标
@@ -311,19 +332,31 @@ void loadTex(unsigned int texID, QDir workdir, string texAddr){
 
 void model::calObjCenter(){
   objCenter[0] = 0.0f; objCenter[1] = 0.0f; objCenter[2] = 0.0f;
-  for(unsigned int i=0; i<vpoints.size(); i++){
-      objCenter[0] += vpoints[i].x;
-      objCenter[1] += vpoints[i].y;
-      objCenter[2] += vpoints[i].z;
-    }
-  objCenter[0]/=vpoints.size();
-  objCenter[1]/=vpoints.size();
-  objCenter[2]/=vpoints.size();
+  //for(unsigned int i=0; i<vpoints.size(); i++){
+  //    objCenter[0] += vpoints[i].x;
+  //    objCenter[1] += vpoints[i].y;
+  //    objCenter[2] += vpoints[i].z;
+  //  }
+  objCenter[0] = (min_X+max_X)/2;
+  objCenter[1] = (min_Y+max_Y)/2;
+  objCenter[2] = (min_Z+max_Z)/2;
+
+  //objCenter[0]/=vpoints.size();
+  //objCenter[1]/=vpoints.size();
+  //objCenter[2]/=vpoints.size();
 }
 
 void drawCoordinate()
 {
     /*红色轴是X轴，绿色是Y轴，蓝色是Z轴*/
+    glPushAttrib(GL_ALL_ATTRIB_BITS); //保存当前所有属性
+
+    glLineWidth(3);
+
+    float mat_diffuse_x[] = { 0.8f, 0.0f, 0.0f, 1.0f };
+    float mat_ambient_x[] = { 0.2f, 0.0f, 0.0f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse_x);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient_x);
     glBegin(GL_LINES);
     glColor3f(1.0f,0.0,0.0);
     glVertex3f(0.0,0.0,0.0);
@@ -332,10 +365,14 @@ void drawCoordinate()
     glPushMatrix();
     glTranslatef(0.5, 0.0f, 0.0f);
     glRotatef(90.0f,0.0f,1.0f,0.0f);
-    glutWireCone(0.027,0.09,10,10);
+    glutSolidCone(0.027,0.09,10,10);
 
     glPopMatrix();
 
+    float mat_diffuse_y[] = { 0.0f, 0.8f, 0.0f, 1.0f };
+    float mat_ambient_y[] = { 0.0f, 0.2f, 0.0f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse_y);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient_y);
     glBegin(GL_LINES);
     glColor3f(0.0,1.0,0.0);
     glVertex3f(0.0,0.0,0.0);
@@ -344,9 +381,13 @@ void drawCoordinate()
     glPushMatrix();
     glTranslatef(0.0, 0.5f, 0.0f);
     glRotatef(-90.0f,1.0f,0.0f,0.0f);
-    glutWireCone(0.027,0.09,10,10);
+    glutSolidCone(0.027,0.09,10,10);
     glPopMatrix();
 
+    float mat_diffuse_z[] = { 0.0f, 0.0f, 0.8f, 1.0f };
+    float mat_ambient_z[] = { 0.0f, 0.0f, 0.2f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse_z);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient_z);
     glBegin(GL_LINES);
     glColor3f(0.0,0.0,1.0);
     glVertex3f(0.0,0.0,0.0);
@@ -354,8 +395,9 @@ void drawCoordinate()
     glEnd();
     glPushMatrix();
     glTranslatef(0.0, 0.0f, 0.5f);
-    glutWireCone(0.027,0.09,10,10);
+    glutSolidCone(0.027,0.09,10,10);
     glPopMatrix();
+    glPopAttrib();
 }
 
 void model::drawOBJ(){
@@ -451,9 +493,9 @@ void model::drawOBJ(){
     glPopAttrib();
     glPopMatrix();
 
-    glTranslatef(objCenter[0], objCenter[1], objCenter[2]);
-    glScalef(100,100,100);
-    drawCoordinate(); //obj的中心坐标系
+    //glTranslatef(objCenter[0], objCenter[1], objCenter[2]);
+    //glScalef(100,100,100);
+    //drawCoordinate(); //obj的中心坐标系
   glPopMatrix();
 }
 
