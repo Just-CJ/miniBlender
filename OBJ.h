@@ -5,7 +5,6 @@
 #include <string>
 #include <QDir>
 
-
 class vpoint{
   public:
     float x, y, z;
@@ -31,6 +30,7 @@ class face{
 class mtl{
   public:
     std::string mtlname;
+    QString map_Kd_addr;
     float ambient[3];
     float diffuse[3];
     float specular[3];
@@ -65,6 +65,7 @@ class model{//基本对象
 
     void calObjCenter();
     void genDisplayList();
+    void deleteDisplayList();
     void drawOBJ();
     void callDisplayList();
     model();
@@ -83,9 +84,7 @@ void loadTex(unsigned int texID, QDir workdir, std::string texAddr);
 void drawCoordinate();
 
 void exportOBJ(QString fileName);
-
-
-
+void exportMTL(QString fileName);
 
 
 #endif // OBJ_H

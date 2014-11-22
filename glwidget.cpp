@@ -10,9 +10,10 @@
 #include <qmath.h>
 #include <QVector3D>
 #include <vector>
-#include <QtGui>
+//#include <QtGui>
+#include <QMouseEvent>
 #include <QtCore>
-#include <QtOpenGL/QtOpenGL>
+//#include <QtOpenGL/QtOpenGL>
 
 #define SELBUFSIZE 512
 
@@ -168,9 +169,18 @@ void GLWidget::processHits(GLint hits, GLuint buffer[]){
      }
 
      if(SelectedID){//存在命中对象
-         if(selectedID != SelectedID) models[selectedID-1].isSelected = false;//选中了别的对象，取消前一个对象的选中状态，保证只有一个对象被选中
-         models[SelectedID-1].isSelected = true;
-         selectedID = SelectedID;
+         if(selectedID != SelectedID && selectedID!=0){
+             models[selectedID-1].isSelected = false;//选中了别的对象，取消前一个对象的选中状态，保证只有一个对象被选中
+             models[SelectedID-1].isSelected = true;
+             selectedID = SelectedID;}
+         else if(selectedID == 0){
+             models[SelectedID-1].isSelected = true;
+             selectedID = SelectedID;
+           }
+         else if(selectedID == SelectedID){
+             models[selectedID-1].isSelected = false;//选中的物体再次双击时取消选中
+             selectedID = 0;
+           }
        }
      //qDebug()<<"test";
 }
@@ -245,7 +255,6 @@ void GLWidget::mousePressEvent(QMouseEvent *e)
     case Qt::LeftButton :{
         QPoint st(e->pos());
         StartPoint=st;
-        selectModel(e->pos().x(), e->pos().y());
       };break;
     case Qt::RightButton:{
         QPoint st(e->pos());
@@ -307,12 +316,26 @@ void GLWidget::wheelEvent(QWheelEvent *e)//鼠标滑轮
     this->updateGL();
 }
 
+void GLWidget::mouseDoubleClickEvent(QMouseEvent *e){
+  switch(e->buttons()){
+      case Qt::LeftButton :{
+        selectModel(e->pos().x(), e->pos().y());
+      };break;
+      default:break;
+    }
+}
+
 
 
 //初始化
 void GLWidget::initializeGL()
 {
 
+    GLenum err = glewInit();
+      if(err != GLEW_OK)
+      {
+          qDebug()<<glewGetErrorString(err);
+      }
     setGeometry(300, 150, 640, 480);//设置窗口初始位置和大小
     glShadeModel(GL_FLAT);//设置阴影平滑模式
     glClearColor(0.0, 0.0, 0.0, 0);//改变窗口的背景颜色，不过我这里貌似设置后并没有什么效果

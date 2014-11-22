@@ -6,7 +6,6 @@
 #include <QImage>
 #include <QFileDialog>
 
-
 #define GLUT_DISABLE_ATEXIT_HACK
 #include <GL/glut.h>
 //#include <GL/freeglut.h>
@@ -203,6 +202,7 @@ void loadMTL(string objAddr, string mtlAddr){
   bool start = false;
 
   string mtlname;
+  QString map_Kd_addr = "";
   float ambient[3] = {0.0,0.0,0.0};
   float diffuse[3] = {0.0,0.0,0.0};
   float specular[3] = {0.0,0.0,0.0};
@@ -228,6 +228,7 @@ void loadMTL(string objAddr, string mtlAddr){
               newmtl.specular[0] = specular[0]; newmtl.specular[1] = specular[1]; newmtl.specular[2] = specular[2];
               newmtl.emission[0] = emission[0]; newmtl.emission[1] = emission[1]; newmtl.emission[2] = emission[2];
               newmtl.texID = texID;
+              newmtl.map_Kd_addr = map_Kd_addr;
 
               models.back().mtls.push_back(newmtl);
               is>>mtlname;
@@ -236,6 +237,7 @@ void loadMTL(string objAddr, string mtlAddr){
               specular[0] = 0.0; specular[1] = 0.0; specular[2] = 0.0;
               emission[0] = 0.0; emission[1] = 0.0; emission[2] = 0.0;
               texID = 0;
+              map_Kd_addr = "";
             }
           else{//第一个mtl
               start = true;
@@ -260,6 +262,7 @@ void loadMTL(string objAddr, string mtlAddr){
               texAddr = string(strline.begin()+offset, strline.end());
               glGenTextures(1, &texID);
               loadTex(texID, workdir, texAddr);
+              map_Kd_addr = workdir.filePath(QString::fromStdString(texAddr));
               }
         }
     }
@@ -271,6 +274,7 @@ void loadMTL(string objAddr, string mtlAddr){
       newmtl.specular[0] = specular[0]; newmtl.specular[1] = specular[1]; newmtl.specular[2] = specular[2];
       newmtl.emission[0] = emission[0]; newmtl.emission[1] = emission[1]; newmtl.emission[2] = emission[2];
       newmtl.texID = texID;
+      newmtl.map_Kd_addr = map_Kd_addr;
 
       models.back().mtls.push_back(newmtl);
     }
@@ -510,6 +514,10 @@ void model::genDisplayList(){
   DisplayListID = lid;
 }
 
+void model::deleteDisplayList(){
+  glDeleteLists(DisplayListID, 1);
+}
+
 
 void model::callDisplayList(){
   glCallList(DisplayListID);
@@ -525,6 +533,10 @@ void exportOBJ(QString fileName){
 
   for(unsigned int i=0; i<models.size(); i++){//遍历输出model
       if(models[i].objects.size()>0){
+          fileName.replace(QRegExp("(\\.obj)$"), ".mtl");
+          exportMTL(fileName);//输出mtl文件
+          out<<"mtllib "<<QDir(fileName).dirName()<<endl;
+
           unsigned int index_v=0, index_vn=0, index_vt=0, index_f=0;
           for(unsigned int j=0; j<models[i].objects.size(); j++){//遍历输出object
 
@@ -637,6 +649,42 @@ void exportOBJ(QString fileName){
         }
     }
 
+  file.close();
+}
+
+void exportMTL(QString fileName){
+  QFile file(fileName);
+
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+      return;
+
+  QDir workdir(fileName);
+  workdir.cdUp();
+
+  QTextStream out(&file);
+  for(unsigned int i = 0; i<models.size(); i++){//遍历所有model
+      for(unsigned int j=0; j<models[i].mtls.size(); j++){//遍历所有model的mtl
+          out<<"newmtl "<<QString::fromStdString(models[i].mtls[j].mtlname)<<endl;
+          out<<"Ka "<<models[i].mtls[j].ambient[0]<<" "<<models[i].mtls[j].ambient[1]<<" "<<models[i].mtls[j].ambient[2]<<endl;
+          out<<"Kd "<<models[i].mtls[j].diffuse[0]<<" "<<models[i].mtls[j].diffuse[1]<<" "<<models[i].mtls[j].diffuse[2]<<endl;
+          out<<"Ks "<<models[i].mtls[j].specular[0]<<" "<<models[i].mtls[j].specular[1]<<" "<<models[i].mtls[j].specular[2]<<endl;
+          out<<"Ke "<<models[i].mtls[j].emission[0]<<" "<<models[i].mtls[j].emission[1]<<" "<<models[i].mtls[j].emission[2]<<endl;
+          if(models[i].mtls[j].map_Kd_addr != ""){
+              QDir tex(models[i].mtls[j].map_Kd_addr);
+              workdir.setPath(workdir.absolutePath()+"/tex");
+              if(!workdir.exists()){
+                  workdir.cdUp();
+                  workdir.mkdir("tex");
+                  workdir.cd("tex");
+                }
+              qDebug()<<workdir.path()+"/"+tex.dirName();
+              qDebug()<<QFile::copy(models[i].mtls[j].map_Kd_addr, workdir.path()+"/"+tex.dirName());
+              //workdir.cdUp();
+              out<<"map_Kd tex\\"<<tex.dirName();
+            }
+          out<<endl;
+        }
+    }
 
   file.close();
 }

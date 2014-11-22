@@ -7,7 +7,11 @@
 QT       += core gui
 QT       += opengl
 
-LIBS += -lglut32
+
+LIBS += -lglew32
+#LIBS += -lglut32
+
+LIBS += -lfreeglut
 
 
 

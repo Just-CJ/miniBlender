@@ -2,7 +2,9 @@
 #define GLWIDGET_H
 
 #include "OBJ.h"
-#include <QtOpenGL>
+#include <GL/glew.h>
+//#include <QtOpenGL>
+#include <QGLWidget>
 #include <QWidget>
 #include <string>
 #define GLUT_DISABLE_ATEXIT_HACK
@@ -39,6 +41,7 @@ protected:
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
+    void mouseDoubleClickEvent(QMouseEvent *e);
     void wheelEvent(QWheelEvent *e);
     void timerEvent(QTimerEvent *);
     void setLight();

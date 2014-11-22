@@ -1,6 +1,7 @@
 #include "ui_openglwindow.h"
 #include "openglwindow.h"
 #include "glwidget.h"
+#include <QFileDialog>
 
 openglWindow::openglWindow(QWidget *parent) :
     QMainWindow(parent),
