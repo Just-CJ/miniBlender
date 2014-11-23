@@ -449,7 +449,6 @@ void model::drawOBJ(){
                 glVertex3f(vpoints[faces[index].index_v[2]-1].x, vpoints[faces[index].index_v[2]-1].y, vpoints[faces[index].index_v[2]-1].z);
 
                 if(faces[index].index_v[3]){//若第四个点存在
-                    //qDebug()<<"test";
                   if(faces[index].index_vn[3])//若法向量索引存在
                     glNormal3f(vnormals[faces[index].index_vn[3]-1].x, vnormals[faces[index].index_vn[3]-1].y, vnormals[faces[index].index_vn[3]-1].z);
                   if(objects[i].texID)
@@ -530,19 +529,28 @@ void exportOBJ(QString fileName){
       return;
 
   QTextStream out(&file);
+  unsigned int pre_v_num = 0, pre_vt_num = 0, pre_vn_num = 0;
+  if(models.size()){
+      fileName.replace(QRegExp("(\\.obj)$"), ".mtl");
+      exportMTL(fileName);//输出mtl文件
+      out<<"mtllib "<<QDir(fileName).dirName()<<endl;
+    }
 
   for(unsigned int i=0; i<models.size(); i++){//遍历输出model
       if(models[i].objects.size()>0){
-          fileName.replace(QRegExp("(\\.obj)$"), ".mtl");
-          exportMTL(fileName);//输出mtl文件
-          out<<"mtllib "<<QDir(fileName).dirName()<<endl;
 
           unsigned int index_v=0, index_vn=0, index_vt=0, index_f=0;
           for(unsigned int j=0; j<models[i].objects.size(); j++){//遍历输出object
 
               out<<"# object"<<" MODEL_"<<i<<"_OBJECT_"<<j<<endl;
               for(unsigned int k=0; k<models[i].objects[j].v_num; k++){//遍历输出v
-                out<<"v "<<models[i].vpoints[index_v].x<<" "<<models[i].vpoints[index_v].y<<" "<<models[i].vpoints[index_v].z<<endl;
+                GLfloat x, y, z;
+                x = models[i].scale*(models[i].vpoints[index_v].x -models[i].objCenter[0])+models[i].offset_x;
+                y = models[i].scale*(models[i].vpoints[index_v].y -models[i].objCenter[1])+models[i].offset_y;
+                z = models[i].scale*(models[i].vpoints[index_v].z -models[i].objCenter[2])+models[i].offset_z;
+
+                //out<<"v "<<models[i].vpoints[index_v].x<<" "<<models[i].vpoints[index_v].y<<" "<<models[i].vpoints[index_v].z<<endl;
+                out<<"v "<<x<<" "<<y<<" "<<z<<endl;
                 index_v++;
                 }
 
@@ -561,35 +569,35 @@ void exportOBJ(QString fileName){
                 }
 
               out<<endl;
-              out<<"usemtl "<<QString::fromStdString(models[i].objects[j].mtlname)<<endl;
+              out<<"usemtl "<<" MODEL_"<<i<<"_"+QString::fromStdString(models[i].objects[j].mtlname)<<endl;
 
               for(unsigned int k=0; k<models[i].objects[j].size; k++){//遍历输出f
                 out<<"f ";
                 for(unsigned int m=0; m<3; m++){
-                  out<<models[i].faces[index_f].index_v[m];
+                  out<<models[i].faces[index_f].index_v[m]+pre_v_num;//顶点索引
                   if(models[i].faces[index_f].index_vt[m]){
-                    out<<"/"<<models[i].faces[index_f].index_vt[m];
+                    out<<"/"<<models[i].faces[index_f].index_vt[m]+pre_vt_num;
                     if(models[i].faces[index_f].index_vn[m])
-                      out<<"/"<<models[i].faces[index_f].index_vn[m];
+                      out<<"/"<<models[i].faces[index_f].index_vn[m]+pre_vn_num;
                     if(m<2) out<<" ";
                     }
                   else{
                       if(models[i].faces[index_f].index_vn[m])
-                        out<<"//"<<models[i].faces[index_f].index_vn[m];
+                        out<<"//"<<models[i].faces[index_f].index_vn[m]+pre_vn_num;
                       if(m<2) out<<" ";
                       }
                   }
                 if(models[i].faces[index_f].index_v[3]){
                     out<<" ";
-                    out<<models[i].faces[index_f].index_v[3];
+                    out<<models[i].faces[index_f].index_v[3]+pre_v_num;
                     if(models[i].faces[index_f].index_vt[3]){
-                      out<<"/"<<models[i].faces[index_f].index_vt[3];
+                      out<<"/"<<models[i].faces[index_f].index_vt[3]+pre_vt_num;
                       if(models[i].faces[index_f].index_vn[3])
-                        out<<"/"<<models[i].faces[index_f].index_vn[3];
+                        out<<"/"<<models[i].faces[index_f].index_vn[3]+pre_vn_num;
                     }
                     else{
                         if(models[i].faces[index_f].index_vn[3])
-                          out<<"//"<<models[i].faces[index_f].index_vn[3];
+                          out<<"//"<<models[i].faces[index_f].index_vn[3]+pre_vn_num;
                         }
                   }
                 out<<endl;
@@ -598,11 +606,21 @@ void exportOBJ(QString fileName){
 
               out<<endl;
             }
+
+          pre_v_num+=models[i].vpoints.size();
+          pre_vt_num+=models[i].vtexs.size();
+          pre_vn_num+=models[i].vnormals.size();
         }
       else{//没有标记usemtl的文件
           out<<"# object"<<" MODEL_"<<i<<endl;
           for(unsigned int k=0; k<models[i].vpoints.size(); k++){//遍历输出v
-            out<<"v "<<models[i].vpoints[k].x<<" "<<models[i].vpoints[k].y<<" "<<models[i].vpoints[k].z<<endl;
+            GLfloat x, y, z;
+            x = models[i].scale*(models[i].vpoints[k].x -models[i].objCenter[0])+models[i].offset_x;
+            y = models[i].scale*(models[i].vpoints[k].y -models[i].objCenter[1])+models[i].offset_y;
+            z = models[i].scale*(models[i].vpoints[k].z -models[i].objCenter[2])+models[i].offset_z;
+            out<<"v "<<x<<" "<<y<<" "<<z<<endl;
+
+            //out<<"v "<<models[i].vpoints[k].x<<" "<<models[i].vpoints[k].y<<" "<<models[i].vpoints[k].z<<endl;
             }
           out<<endl;
           for(unsigned int k=0; k<models[i].vnormals.size(); k++){//遍历输出vn
@@ -646,6 +664,10 @@ void exportOBJ(QString fileName){
             }
 
           out<<endl;
+
+          pre_v_num+=models[i].vpoints.size();
+          pre_vt_num+=models[i].vtexs.size();
+          pre_vn_num+=models[i].vnormals.size();
         }
     }
 
@@ -660,27 +682,29 @@ void exportMTL(QString fileName){
 
   QDir workdir(fileName);
   workdir.cdUp();
+  fileName.replace(QRegExp("(\\.mtl)$"), "");
 
   QTextStream out(&file);
   for(unsigned int i = 0; i<models.size(); i++){//遍历所有model
       for(unsigned int j=0; j<models[i].mtls.size(); j++){//遍历所有model的mtl
-          out<<"newmtl "<<QString::fromStdString(models[i].mtls[j].mtlname)<<endl;
+          out<<"newmtl "<<" MODEL_"<<i<<"_"+QString::fromStdString(models[i].mtls[j].mtlname)<<endl;
           out<<"Ka "<<models[i].mtls[j].ambient[0]<<" "<<models[i].mtls[j].ambient[1]<<" "<<models[i].mtls[j].ambient[2]<<endl;
           out<<"Kd "<<models[i].mtls[j].diffuse[0]<<" "<<models[i].mtls[j].diffuse[1]<<" "<<models[i].mtls[j].diffuse[2]<<endl;
           out<<"Ks "<<models[i].mtls[j].specular[0]<<" "<<models[i].mtls[j].specular[1]<<" "<<models[i].mtls[j].specular[2]<<endl;
           out<<"Ke "<<models[i].mtls[j].emission[0]<<" "<<models[i].mtls[j].emission[1]<<" "<<models[i].mtls[j].emission[2]<<endl;
           if(models[i].mtls[j].map_Kd_addr != ""){
               QDir tex(models[i].mtls[j].map_Kd_addr);
-              workdir.setPath(workdir.absolutePath()+"/tex");
+              QString texDir = QDir(fileName).dirName()+"_tex";
+              workdir.setPath(workdir.absolutePath()+"/"+texDir);
               if(!workdir.exists()){
                   workdir.cdUp();
-                  workdir.mkdir("tex");
-                  workdir.cd("tex");
+                  workdir.mkdir(texDir);
+                  workdir.cd(texDir);
                 }
-              qDebug()<<workdir.path()+"/"+tex.dirName();
+              qDebug()<<workdir.absolutePath()+"/"+tex.dirName();
               qDebug()<<QFile::copy(models[i].mtls[j].map_Kd_addr, workdir.path()+"/"+tex.dirName());
-              //workdir.cdUp();
-              out<<"map_Kd tex\\"<<tex.dirName();
+              workdir.cdUp();
+              out<<"map_Kd "<<texDir<<"\\"<<tex.dirName()<<endl;
             }
           out<<endl;
         }
