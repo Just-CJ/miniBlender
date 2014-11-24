@@ -18,6 +18,8 @@ public:
     explicit openglWindow(QWidget *parent = 0);
     ~openglWindow();
 
+
+
 private slots:
     void on_actionImport_triggered();
 
@@ -26,6 +28,14 @@ private slots:
     void on_Light_BTN_clicked();
 
     void on_actionExport_triggered();
+
+    void InitSpinBox();
+
+    void on_doubleSpinBox_valueChanged(double rotate_x);
+
+    void on_doubleSpinBox_3_valueChanged(double rotate_z);
+
+    void on_doubleSpinBox_2_valueChanged(double rotate_y);
 
 private:
     Ui::openglWindow *ui;

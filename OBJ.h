@@ -51,8 +51,8 @@ class model{//基本对象
     bool isSelected;
     float offset_x, offset_y, offset_z;
     float scale;
-    float CurrentAngleZ, CurrentAngleY;
-    float LastAngleZ, LastAngleY;
+    double rotate_x, rotate_y, rotate_z;
+    float rotateMatrix[16];
     float min_X, max_X, min_Y, max_Y, min_Z, max_Z;
     float objCenter[3];
 

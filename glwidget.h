@@ -24,11 +24,16 @@ public:
     bool isWireframe;
     bool enableLight;
     GLfloat *objCenter;
+    unsigned int selectedID;//场景中被选中的物体
+    float lastRotateMatrix[16];     //上一次的旋转矩阵
 
     explicit GLWidget(QGLWidget *parent = 0);
     ~GLWidget();
 
     void initOBJ();
+
+signals:
+    void model_select();
 
 
 protected:
@@ -59,7 +64,7 @@ protected:
 private:
     Ui::GLWidget *ui;
 
-    unsigned int selectedID;//场景中被选中的物体
+
 
     GLfloat whRatio;
 
@@ -99,6 +104,8 @@ private:
     GLfloat LastOBJ_x;          //上一次选中物体xyz偏移
     GLfloat LastOBJ_y;
     GLfloat LastOBJ_z;
+
+
 
 
     bool objRotate;

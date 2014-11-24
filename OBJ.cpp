@@ -27,11 +27,14 @@ model::model(){
   offset_y = 0.0;
   offset_z = 0.0;
 
-  CurrentAngleZ = 0.0;
-  CurrentAngleY = 90.0;
-  LastAngleZ = 0.0;
-  LastAngleY = 90.0;
+  rotate_x = 0.0;
+  rotate_y = 0.0;
+  rotate_z = 0.0;
 
+  rotateMatrix[0]=1;rotateMatrix[1]=0;rotateMatrix[2]=0;rotateMatrix[3]=0;
+  rotateMatrix[4]=0;rotateMatrix[5]=1;rotateMatrix[6]=0;rotateMatrix[7]=0;
+  rotateMatrix[8]=0;rotateMatrix[9]=0;rotateMatrix[10]=1;rotateMatrix[11]=0;
+  rotateMatrix[12]=0;rotateMatrix[13]=0;rotateMatrix[14]=0;rotateMatrix[15]=1;
 
   scale = 1.0;
   objCenter[0] = 0.0;

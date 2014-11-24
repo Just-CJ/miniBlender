@@ -84,7 +84,7 @@ void GLWidget::RotateViewPoint()
 
     /*把每次移动点跟开始按下鼠标记录的点作差，然后乘以avAngle,最后把上一次释放鼠标后时记录的
       角度相加起来*/
-    if(!selectedID){
+    //if(!selectedID){
       CurrentAngleZ=-(EndPoint.x()-StartPoint.x())*avAnale;
       CurrentAngleZ+=LastAngleZ;
       CurrentAngleY=-(EndPoint.y()-StartPoint.y())*avAnale;
@@ -109,16 +109,7 @@ void GLWidget::RotateViewPoint()
       upx=vector2.x();
       upy=vector2.y();
       upz=vector2.z();
-      }
-    else{
-        models[selectedID-1].CurrentAngleZ=-(EndPoint.x()-StartPoint.x())*0.6;
-        models[selectedID-1].CurrentAngleZ+=models[selectedID-1].LastAngleZ;
-        models[selectedID-1].CurrentAngleY=-(EndPoint.y()-StartPoint.y())*0.6;
-        models[selectedID-1].CurrentAngleY+=models[selectedID-1].LastAngleY;
-      }
-
-
-
+      //}
 }
 
 void GLWidget::TranslateViewPoint(){
@@ -172,14 +163,22 @@ void GLWidget::processHits(GLint hits, GLuint buffer[]){
          if(selectedID != SelectedID && selectedID!=0){
              models[selectedID-1].isSelected = false;//选中了别的对象，取消前一个对象的选中状态，保证只有一个对象被选中
              models[SelectedID-1].isSelected = true;
-             selectedID = SelectedID;}
+             selectedID = SelectedID;
+             for(int i=0; i<16; i++)
+               lastRotateMatrix[i] = models[selectedID-1].rotateMatrix[i];
+             emit model_select();
+           }
          else if(selectedID == 0){
              models[SelectedID-1].isSelected = true;
              selectedID = SelectedID;
+             for(int i=0; i<16; i++)
+               lastRotateMatrix[i] = models[selectedID-1].rotateMatrix[i];
+             emit model_select();
            }
          else if(selectedID == SelectedID){
              models[selectedID-1].isSelected = false;//选中的物体再次双击时取消选中
              selectedID = 0;
+             emit model_select();
            }
        }
      //qDebug()<<"test";
@@ -224,6 +223,10 @@ void GLWidget::selectModel(int x, int y){
       glPushMatrix();
       glTranslatef(models[i].offset_x, models[i].offset_y, models[i].offset_z);
       glScalef(models[i].scale, models[i].scale, models[i].scale);
+      //glRotated(models[i].rotate_x, 1, 0, 0);
+      //glRotated(models[i].rotate_y, 0, 1, 0);
+      //glRotated(models[i].rotate_z, 0, 0, 1);
+      glMultMatrixf(models[i].rotateMatrix);
 
       models[i].callDisplayList();
       glPopMatrix();
@@ -241,9 +244,10 @@ void GLWidget::selectModel(int x, int y){
   else{//没有命中
       if(selectedID) models[selectedID-1].isSelected = false; //取消原先物体的选中状态
       selectedID = 0;
+      emit model_select();
     }
   glMatrixMode(GL_MODELVIEW);
-  qDebug()<<"test";
+  //qDebug()<<"test";
 
 }
 
@@ -276,11 +280,6 @@ void GLWidget::mouseReleaseEvent(QMouseEvent *e)
         /*记录上一次的角度*/
         LastAngleZ=CurrentAngleZ;
         LastAngleY=CurrentAngleY;
-        if(selectedID){
-            models[selectedID-1].LastAngleY = models[selectedID-1].CurrentAngleY;
-            models[selectedID-1].LastAngleZ = models[selectedID-1].CurrentAngleZ;
-          }
-
       };break;
     case Qt::RightButton:{
         LastMain_x = main_x;
@@ -468,6 +467,10 @@ void GLWidget::paintGL()
         glPushMatrix();
         glTranslatef(models[i].offset_x, models[i].offset_y, models[i].offset_z);//model自身的位移
         glScalef(models[i].scale, models[i].scale, models[i].scale);//model自身的放大缩小
+        //glRotated(models[i].rotate_x, 1, 0, 0);
+        //glRotated(models[i].rotate_y, 0, 1, 0);
+        //glRotated(models[i].rotate_z, 0, 0, 1);
+        glMultMatrixf(models[i].rotateMatrix);
 
         models[i].callDisplayList();//调用model自己的显示列表
 
