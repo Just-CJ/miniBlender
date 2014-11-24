@@ -547,20 +547,39 @@ void exportOBJ(QString fileName){
 
               out<<"# object"<<" MODEL_"<<i<<"_OBJECT_"<<j<<endl;
               for(unsigned int k=0; k<models[i].objects[j].v_num; k++){//遍历输出v
-                GLfloat x, y, z;
-                x = models[i].scale*(models[i].vpoints[index_v].x -models[i].objCenter[0])+models[i].offset_x;
-                y = models[i].scale*(models[i].vpoints[index_v].y -models[i].objCenter[1])+models[i].offset_y;
-                z = models[i].scale*(models[i].vpoints[index_v].z -models[i].objCenter[2])+models[i].offset_z;
+                GLfloat x, y, z, x1, y1, z1;
+                x = models[i].vpoints[index_v].x -models[i].objCenter[0];
+                y = models[i].vpoints[index_v].y -models[i].objCenter[1];
+                z = models[i].vpoints[index_v].z -models[i].objCenter[2];
+                float *m = models[i].rotateMatrix;
+                x1 = m[0]*x + m[1]*y + m[2]*z + m[3];
+                y1 = m[4]*x + m[5]*y + m[6]*z + m[7];
+                z1 = m[8]*x + m[9]*y + m[10]*z + m[11];
+                x1 = models[i].scale*x1 + models[i].offset_x;
+                y1 = models[i].scale*y1 + models[i].offset_y;
+                z1 = models[i].scale*z1 + models[i].offset_z;
+
+                //x = models[i].scale*(models[i].vpoints[index_v].x -models[i].objCenter[0])+models[i].offset_x;
+                //y = models[i].scale*(models[i].vpoints[index_v].y -models[i].objCenter[1])+models[i].offset_y;
+                //z = models[i].scale*(models[i].vpoints[index_v].z -models[i].objCenter[2])+models[i].offset_z;
 
                 //out<<"v "<<models[i].vpoints[index_v].x<<" "<<models[i].vpoints[index_v].y<<" "<<models[i].vpoints[index_v].z<<endl;
-                out<<"v "<<x<<" "<<y<<" "<<z<<endl;
+                out<<"v "<<x1<<" "<<y1<<" "<<z1<<endl;
                 index_v++;
                 }
 
               out<<endl;
 
               for(unsigned int k=0; k<models[i].objects[j].vn_num; k++){//遍历输出vn
-                out<<"vn "<<models[i].vnormals[index_vn].x<<" "<<models[i].vnormals[index_vn].y<<" "<<models[i].vnormals[index_vn].z<<endl;
+                GLfloat x, y, z, x1, y1, z1;
+                x = models[i].vnormals[index_vn].x;
+                y = models[i].vnormals[index_vn].y;
+                z = models[i].vnormals[index_vn].z;
+                float *m = models[i].rotateMatrix;
+                x1 = m[0]*x + m[1]*y + m[2]*z + m[3];
+                y1 = m[4]*x + m[5]*y + m[6]*z + m[7];
+                z1 = m[8]*x + m[9]*y + m[10]*z + m[11];
+                out<<"vn "<<x1<<" "<<y1<<" "<<z1<<endl;
                 index_vn++;
                 }
 
@@ -617,17 +636,33 @@ void exportOBJ(QString fileName){
       else{//没有标记usemtl的文件
           out<<"# object"<<" MODEL_"<<i<<endl;
           for(unsigned int k=0; k<models[i].vpoints.size(); k++){//遍历输出v
-            GLfloat x, y, z;
-            x = models[i].scale*(models[i].vpoints[k].x -models[i].objCenter[0])+models[i].offset_x;
-            y = models[i].scale*(models[i].vpoints[k].y -models[i].objCenter[1])+models[i].offset_y;
-            z = models[i].scale*(models[i].vpoints[k].z -models[i].objCenter[2])+models[i].offset_z;
-            out<<"v "<<x<<" "<<y<<" "<<z<<endl;
+            GLfloat x, y, z, x1, y1, z1;
+            x = models[i].vpoints[k].x -models[i].objCenter[0];
+            y = models[i].vpoints[k].y -models[i].objCenter[1];
+            z = models[i].vpoints[k].z -models[i].objCenter[2];
+
+            float *m = models[i].rotateMatrix;
+            x1 = m[0]*x + m[1]*y + m[2]*z + m[3];
+            y1 = m[4]*x + m[5]*y + m[6]*z + m[7];
+            z1 = m[8]*x + m[9]*y + m[10]*z + m[11];
+            x1 = models[i].scale*x1 + models[i].offset_x;
+            y1 = models[i].scale*y1 + models[i].offset_y;
+            z1 = models[i].scale*z1 + models[i].offset_z;
+            out<<"v "<<x1<<" "<<y1<<" "<<z1<<endl;
 
             //out<<"v "<<models[i].vpoints[k].x<<" "<<models[i].vpoints[k].y<<" "<<models[i].vpoints[k].z<<endl;
             }
           out<<endl;
           for(unsigned int k=0; k<models[i].vnormals.size(); k++){//遍历输出vn
-            out<<"vn "<<models[i].vnormals[k].x<<" "<<models[i].vnormals[k].y<<" "<<models[i].vnormals[k].z<<endl;
+            GLfloat x, y, z, x1, y1, z1;
+            x = models[i].vnormals[k].x;
+            y = models[i].vnormals[k].y;
+            z = models[i].vnormals[k].z;
+            float *m = models[i].rotateMatrix;
+            x1 = m[0]*x + m[1]*y + m[2]*z + m[3];
+            y1 = m[4]*x + m[5]*y + m[6]*z + m[7];
+            z1 = m[8]*x + m[9]*y + m[10]*z + m[11];
+            out<<"vn "<<x1<<" "<<y1<<" "<<z1<<endl;
             }
           out<<endl;
           for(unsigned int k=0; k<models[i].vtexs.size(); k++){//遍历输出vt

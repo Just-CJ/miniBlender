@@ -467,10 +467,8 @@ void GLWidget::paintGL()
         glPushMatrix();
         glTranslatef(models[i].offset_x, models[i].offset_y, models[i].offset_z);//model自身的位移
         glScalef(models[i].scale, models[i].scale, models[i].scale);//model自身的放大缩小
-        //glRotated(models[i].rotate_x, 1, 0, 0);
-        //glRotated(models[i].rotate_y, 0, 1, 0);
-        //glRotated(models[i].rotate_z, 0, 0, 1);
-        glMultMatrixf(models[i].rotateMatrix);
+
+        glMultMatrixf(models[i].rotateMatrix);//乘上旋转矩阵
 
         models[i].callDisplayList();//调用model自己的显示列表
 
