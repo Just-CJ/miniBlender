@@ -9,10 +9,7 @@ QT       += opengl
 
 
 LIBS += -lglew32
-#LIBS += -lglut32
-
 LIBS += -lfreeglut
-
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -22,15 +19,17 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        openglwindow.cpp \
     glwidget.cpp \
-    OBJ.cpp
+    OBJ.cpp \
+    mainwindow.cpp
 
-HEADERS  += openglwindow.h \
+HEADERS  += \
     glwidget.h \
-    OBJ.h
+    OBJ.h \
+    mainwindow.h
 
-FORMS    += openglwindow.ui \
-    glwidget.ui
+FORMS    += \
+    glwidget.ui \
+    mainwindow.ui
 
 

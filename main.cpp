@@ -1,4 +1,4 @@
-#include "openglwindow.h"
+#include "mainwindow.h"
 #include "glwidget.h"
 #include <QApplication>
 
@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
 {
     glutInit(&argc, argv); //initialize glut
     QApplication a(argc, argv);
-    openglWindow w;
+    MainWindow w;
     //GLWidget w;
     w.show();
 

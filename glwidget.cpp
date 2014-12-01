@@ -335,7 +335,7 @@ void GLWidget::initializeGL()
       {
           qDebug()<<glewGetErrorString(err);
       }
-    setGeometry(300, 150, 640, 480);//设置窗口初始位置和大小
+    setGeometry(0, 0, 910, 660);//设置窗口初始位置和大小
     glShadeModel(GL_FLAT);//设置阴影平滑模式
     glClearColor(0.0, 0.0, 0.0, 0);//改变窗口的背景颜色，不过我这里貌似设置后并没有什么效果
     glClearDepth(1.0);//设置深度缓存
