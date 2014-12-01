@@ -70,7 +70,7 @@
         <widget class="QWidget" name="verticalLayoutWidget">
          <property name="geometry">
           <rect>
-           <x>0</x>
+           <x>30</x>
            <y>0</y>
            <width>911</width>
            <height>661</height>
@@ -275,7 +275,7 @@
          </property>
          <column>
           <property name="text">
-           <string notr="true">1</string>
+           <string notr="true">Object List</string>
           </property>
          </column>
         </widget>
@@ -319,6 +319,8 @@
     </property>
     <addaction name="actionLight_On_Off"/>
     <addaction name="actionWire_Solid"/>
+    <addaction name="separator"/>
+    <addaction name="actionFresh_List"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEnity"/>
@@ -338,13 +340,14 @@
    <addaction name="actionImport_OBJ_File"/>
    <addaction name="actionExport_OBJ_File"/>
    <addaction name="separator"/>
+   <addaction name="actionFresh_List"/>
    <addaction name="actionLight_On_Off"/>
    <addaction name="actionWire_Solid"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionCreate_Project">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="Icons.qrc">
      <normaloff>:/new/prefix1/Icons/addProject.ico</normaloff>:/new/prefix1/Icons/addProject.ico</iconset>
    </property>
    <property name="text">
@@ -353,7 +356,7 @@
   </action>
   <action name="actionOpen_Project">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="Icons.qrc">
      <normaloff>:/new/prefix1/Icons/openProject.ico</normaloff>:/new/prefix1/Icons/openProject.ico</iconset>
    </property>
    <property name="text">
@@ -362,7 +365,7 @@
   </action>
   <action name="actionSave_Project">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="Icons.qrc">
      <normaloff>:/new/prefix1/Icons/saveProject.ico</normaloff>:/new/prefix1/Icons/saveProject.ico</iconset>
    </property>
    <property name="text">
@@ -371,7 +374,7 @@
   </action>
   <action name="actionImport_OBJ_File">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="Icons.qrc">
      <normaloff>:/new/prefix1/Icons/openFile.ico</normaloff>:/new/prefix1/Icons/openFile.ico</iconset>
    </property>
    <property name="text">
@@ -380,7 +383,7 @@
   </action>
   <action name="actionExport_OBJ_File">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="Icons.qrc">
      <normaloff>:/new/prefix1/Icons/outputFile.ico</normaloff>:/new/prefix1/Icons/outputFile.ico</iconset>
    </property>
    <property name="text">
@@ -399,7 +402,7 @@
   </action>
   <action name="actionLight_On_Off">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="Icons.qrc">
      <normaloff>:/new/prefix1/Icons/lightOn.ico</normaloff>:/new/prefix1/Icons/lightOn.ico</iconset>
    </property>
    <property name="text">
@@ -408,17 +411,26 @@
   </action>
   <action name="actionWire_Solid">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="Icons.qrc">
      <normaloff>:/new/prefix1/Icons/wireMode.ico</normaloff>:/new/prefix1/Icons/wireMode.ico</iconset>
    </property>
    <property name="text">
     <string>Wire / Solid</string>
    </property>
   </action>
+  <action name="actionFresh_List">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/Fresh.ico</normaloff>:/new/prefix1/Icons/Fresh.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Fresh List</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="icons.qrc"/>
+  <include location="Icons.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -437,8 +449,57 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>menuBar</sender>
+   <signal>triggered(QAction*)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateCatalog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>613</x>
+     <y>11</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>613</x>
+     <y>380</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mainToolBar</sender>
+   <signal>actionTriggered(QAction*)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateCatalog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>613</x>
+     <y>39</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>613</x>
+     <y>380</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>613</x>
+     <y>380</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>initSpinBoxAndSlider()</slot>
+  <slot>updateCatalog()</slot>
  </slots>
 </ui>

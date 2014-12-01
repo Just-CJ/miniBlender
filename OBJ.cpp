@@ -472,7 +472,7 @@ void model::drawOBJ(){
       }else{
 
       for(unsigned int i=0; i<faces.size(); i++){
-
+    qDebug()<<"777";
           glBegin(GL_POLYGON);
           glColor3f(1,1,1);
 

@@ -21,15 +21,20 @@ TEMPLATE = app
 SOURCES += main.cpp\
     glwidget.cpp \
     OBJ.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    enity.cpp
 
 HEADERS  += \
     glwidget.h \
     OBJ.h \
-    mainwindow.h
+    mainwindow.h \
+    enity.h
 
 FORMS    += \
     glwidget.ui \
     mainwindow.ui
+
+RESOURCES += \
+    Icons.qrc
 
 

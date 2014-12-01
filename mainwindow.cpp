@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "glwidget.h"
+#include "enity.h"
 #include <QFileDialog>
 #include <vector>
 #include <QDebug>
@@ -186,6 +187,19 @@ void MainWindow::on_doubleSpinBox_3_valueChanged(double rotate_z)
 
 void MainWindow::updateCatalog()
 {
-
+    ui->treeWidget->clear();
+    QTreeWidgetItem *Objects = new QTreeWidgetItem(QStringList()<<"Objects:");
+    ui->treeWidget->addTopLevelItem(Objects);
+    for(int i = 0; i < models.size(); i++){
+        QString name = "object" + QString::number(i + 1);
+        QTreeWidgetItem *object = new QTreeWidgetItem(QStringList()<<name);
+        Objects->addChild(object);
+    }
 }
 
+
+void MainWindow::on_actionAdd_cube_triggered()
+{
+    model Cube = createCube();
+    models.push_back(Cube);
+}

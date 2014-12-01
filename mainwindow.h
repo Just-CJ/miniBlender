@@ -41,6 +41,8 @@ private slots:
     void updateCatalog();
 
 
+    void on_actionAdd_cube_triggered();
+
 private:
     Ui::MainWindow *ui;
 };
