@@ -203,3 +203,17 @@ void MainWindow::on_actionAdd_cube_triggered()
     model Cube = createCube();
     models.push_back(Cube);
 }
+
+void MainWindow::on_actionAdd_prism_triggered()
+{
+    Prismoid prismoid(3, 50, 50, 50);
+    model P = prismoid.createPrismoid();
+    models.push_back(P);
+}
+
+void MainWindow::on_actionAdd_prismoid_triggered()
+{
+    Prismoid prismoid;
+    model P = prismoid.createPrismoid();
+    models.push_back(P);
+}

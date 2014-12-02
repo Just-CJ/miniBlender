@@ -312,6 +312,8 @@
      <string>Enity</string>
     </property>
     <addaction name="actionAdd_cube"/>
+    <addaction name="actionAdd_prism"/>
+    <addaction name="actionAdd_prismoid"/>
    </widget>
    <widget class="QMenu" name="menuControl">
     <property name="title">
@@ -425,6 +427,16 @@
    </property>
    <property name="text">
     <string>Fresh List</string>
+   </property>
+  </action>
+  <action name="actionAdd_prism">
+   <property name="text">
+    <string>Add prism</string>
+   </property>
+  </action>
+  <action name="actionAdd_prismoid">
+   <property name="text">
+    <string>Add prismoid</string>
    </property>
   </action>
  </widget>

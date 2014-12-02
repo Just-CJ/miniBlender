@@ -43,6 +43,10 @@ private slots:
 
     void on_actionAdd_cube_triggered();
 
+    void on_actionAdd_prism_triggered();
+
+    void on_actionAdd_prismoid_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -3,24 +3,20 @@
 
 #include "OBJ.h"
 
-//class enityToModel
-//{
-//public:
-    //On create
-    model createCube();
-    model createSphere();
-    model createCylinder();
-    model createCone();
-    model createPrism();
-    model createFPyramid();
 
-    model createSphere(int densaty);
-    model createCylinder(int densaty);
-    model createCone(int densaty);
-    model createPrism(int faceNum);
-    model createFPyramid(int faceNum);
-    //When update some attributes, you need to reshape them.
-    //That's the density of the wire or the side face. (Cube doesn't need update)
-//};
+model createCube();
+
+//棱柱和棱台使用一个类表示。棱柱可以看做底面和顶面外接圆半径相同的棱台。
+class Prismoid{
+public:
+    Prismoid(int fn = 3, float h = 50, float r = 50, float rt = 30);
+    model createPrismoid();
+    int faceNum;
+    float height;
+    //底面外接圆半径
+    float r;
+    //顶面外接圆半径
+    float rTop;
+};
 
 #endif // ENITY_H
