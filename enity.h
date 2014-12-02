@@ -3,8 +3,7 @@
 
 #include "OBJ.h"
 
-
-model createCube();
+model createCube(float r = 50);
 
 //棱柱和棱台使用一个类表示。棱柱可以看做底面和顶面外接圆半径相同的棱台。
 class Prismoid{

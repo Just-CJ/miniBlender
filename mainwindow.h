@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "glwidget.h"
+#include "attributewidget.h"
 
 namespace Ui {
 class MainWindow;
@@ -14,11 +15,16 @@ class MainWindow : public QMainWindow
 
 public:
     GLWidget *widget;
+    attributeWidget *attr;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
 private slots:
     void initSpinBoxAndSlider();
+
+    void selectedAttribute();
+
+    void reshapeEntity();
 
     void on_actionImport_OBJ_File_triggered();
 

@@ -76,6 +76,16 @@ class object : public mtl{
     unsigned int vt_num;
 };
 
+//用于检查model类型是enity还是object。对于enity可以进行重定义
+enum entityType{
+    NOT,
+    CUBE,
+    PRISMOID,
+    CYLINDER,
+    SPHERE
+};
+
+
 class model{//基本对象
   public:
     bool isSelected;
@@ -100,6 +110,9 @@ class model{//基本对象
     void callDisplayList();
     model();
     ~model();
+
+    //Added attribute to control reshape entity. ---Lkx
+    entityType type = NOT;
 
   private:
 

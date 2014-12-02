@@ -1,7 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "glwidget.h"
+#include "attributewidget.h"
 #include "enity.h"
+#include "OBJ.h"
 #include <QFileDialog>
 #include <vector>
 #include <QDebug>
@@ -19,6 +21,13 @@ MainWindow::MainWindow(QWidget *parent) :
     widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->verticalLayout_3->addWidget(widget);
     widget->setFocusPolicy(Qt::ClickFocus);
+
+    attr = new attributeWidget();
+    ui->verticalLayout_4->addWidget(attr);
+
+    connect(widget, SIGNAL(model_select()), this, SLOT(initSpinBoxAndSlider()));
+    connect(widget, SIGNAL(model_select()), this, SLOT(selectedAttribute()));
+    connect(attr, SIGNAL(reshape()), this, SLOT(reshapeEntity()));
 }
 
 MainWindow::~MainWindow()
@@ -201,6 +210,7 @@ void MainWindow::updateCatalog()
 void MainWindow::on_actionAdd_cube_triggered()
 {
     model Cube = createCube();
+    Cube.type = CUBE;
     models.push_back(Cube);
 }
 
@@ -208,6 +218,7 @@ void MainWindow::on_actionAdd_prism_triggered()
 {
     Prismoid prismoid(3, 50, 50, 50);
     model P = prismoid.createPrismoid();
+    P.type = PRISMOID;
     models.push_back(P);
 }
 
@@ -215,5 +226,39 @@ void MainWindow::on_actionAdd_prismoid_triggered()
 {
     Prismoid prismoid;
     model P = prismoid.createPrismoid();
+    P.type = PRISMOID;
     models.push_back(P);
+}
+
+void MainWindow::selectedAttribute()
+{
+    if(widget->selectedID){
+        switch(models[widget->selectedID-1].type){
+        case NOT: attr->viewable(0, 1, 0, 0, 0, 0, 0, 0, 0); break;
+        case CUBE: attr->viewable(0, 0, 1, 0, 0, 0, 0, 1, 0); break;
+        case PRISMOID: attr->viewable(0, 0, 1, 1, 1, 1, 1, 0, 0); break;
+        default: break;
+        }
+    }
+    else
+        attr->viewable(1, 0, 0, 0, 0, 0, 0, 0, 0);
+}
+
+void MainWindow::reshapeEntity()
+{
+    if(models[widget->selectedID-1].type == CUBE){
+        model Cube = createCube(attr->R->value());
+        Cube.type = CUBE;
+        models[widget->selectedID-1] = Cube;
+    }
+    else if(models[widget->selectedID-1].type == PRISMOID){
+        Prismoid prismoid(attr->faceNum->value(), attr->height->value(), attr->botR->value(), attr->topR->value());
+        qDebug()<<attr->faceNum->value();
+        qDebug()<<attr->height->value();
+        qDebug()<<attr->botR->value();
+        qDebug()<<attr->topR->value();
+        model P = prismoid.createPrismoid();
+        P.type = PRISMOID;
+        models[widget->selectedID-1] = P;
+    }
 }

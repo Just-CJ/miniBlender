@@ -4,18 +4,19 @@
 #include <QDebug>
 #include <qmath.h>
 
-model createCube()
+model createCube(float r)
 {
     model cube;
+    float l = r/2;
     vpoint vp[8];
-    vp[0].values( 50, 50, 50);
-    vp[1].values( 50, 50,-50);
-    vp[2].values( 50,-50, 50);
-    vp[3].values( 50,-50,-50);
-    vp[4].values(-50,-50, 50);
-    vp[5].values(-50,-50,-50);
-    vp[6].values(-50, 50, 50);
-    vp[7].values(-50, 50,-50);
+    vp[0].values( l, l, l);
+    vp[1].values( l, l,-l);
+    vp[2].values( l,-l, l);
+    vp[3].values( l,-l,-l);
+    vp[4].values(-l,-l, l);
+    vp[5].values(-l,-l,-l);
+    vp[6].values(-l, l, l);
+    vp[7].values(-l, l,-l);
     face f[6];
     f[0].values_v(1,2,4,3);
     f[1].values_v(1,2,8,7);

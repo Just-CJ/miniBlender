@@ -22,17 +22,20 @@ SOURCES += main.cpp\
     glwidget.cpp \
     OBJ.cpp \
     mainwindow.cpp \
-    enity.cpp
+    enity.cpp \
+    attributewidget.cpp
 
 HEADERS  += \
     glwidget.h \
     OBJ.h \
     mainwindow.h \
-    enity.h
+    enity.h \
+    attributewidget.h
 
 FORMS    += \
     glwidget.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    attributewidget.ui
 
 RESOURCES += \
     Icons.qrc
