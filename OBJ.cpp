@@ -41,6 +41,8 @@ model::model(){
   objCenter[1] = 0.0;
   objCenter[2] = 0.0;
   DisplayListID = 0;
+
+  type = NOT;
 }
 
 model::~model(){
@@ -472,7 +474,6 @@ void model::drawOBJ(){
       }else{
 
       for(unsigned int i=0; i<faces.size(); i++){
-
           glBegin(GL_POLYGON);
           glColor3f(1,1,1);
 
