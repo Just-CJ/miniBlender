@@ -112,7 +112,8 @@ class model{//基本对象
     ~model();
 
     //Added attribute to control reshape entity. ---Lkx
-    entityType type = NOT;
+    entityType type;
+    std::vector<float> entityAttr;
 
   private:
 

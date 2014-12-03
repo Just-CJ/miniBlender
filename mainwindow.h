@@ -19,6 +19,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void objectSubmit();
+
 private slots:
     void initSpinBoxAndSlider();
 
@@ -46,12 +49,13 @@ private slots:
 
     void updateCatalog();
 
-
     void on_actionAdd_cube_triggered();
 
     void on_actionAdd_prism_triggered();
 
     void on_actionAdd_prismoid_triggered();
+
+    void on_actionAdd_sphere_triggered();
 
 private:
     Ui::MainWindow *ui;

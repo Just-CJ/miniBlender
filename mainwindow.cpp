@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(widget, SIGNAL(model_select()), this, SLOT(initSpinBoxAndSlider()));
     connect(widget, SIGNAL(model_select()), this, SLOT(selectedAttribute()));
     connect(attr, SIGNAL(reshape()), this, SLOT(reshapeEntity()));
+    connect(this, SIGNAL(objectSubmit()), this, SLOT(updateCatalog()));
 }
 
 MainWindow::~MainWindow()
@@ -45,6 +46,8 @@ void MainWindow::on_actionImport_OBJ_File_triggered()
     loadOBJ(fileName.toStdString().c_str());
     //widget->objCenter = calObjCenter();
     widget->updateGL();
+
+    emit objectSubmit();
 }
 
 void MainWindow::on_actionWire_Solid_triggered()
@@ -212,6 +215,8 @@ void MainWindow::on_actionAdd_cube_triggered()
     model Cube = createCube();
     Cube.type = CUBE;
     models.push_back(Cube);
+
+    emit objectSubmit();
 }
 
 void MainWindow::on_actionAdd_prism_triggered()
@@ -220,6 +225,8 @@ void MainWindow::on_actionAdd_prism_triggered()
     model P = prismoid.createPrismoid();
     P.type = PRISMOID;
     models.push_back(P);
+
+    emit objectSubmit();
 }
 
 void MainWindow::on_actionAdd_prismoid_triggered()
@@ -228,15 +235,45 @@ void MainWindow::on_actionAdd_prismoid_triggered()
     model P = prismoid.createPrismoid();
     P.type = PRISMOID;
     models.push_back(P);
+
+    emit objectSubmit();
+}
+
+void MainWindow::on_actionAdd_sphere_triggered()
+{
+    Sphere sphere;
+    model s = sphere.createSphere();
+    s.type = SPHERE;
+    models.push_back(s);
+
+    emit objectSubmit();
 }
 
 void MainWindow::selectedAttribute()
 {
     if(widget->selectedID){
         switch(models[widget->selectedID-1].type){
-        case NOT: attr->viewable(0, 1, 0, 0, 0, 0, 0, 0, 0); break;
-        case CUBE: attr->viewable(0, 0, 1, 0, 0, 0, 0, 1, 0); break;
-        case PRISMOID: attr->viewable(0, 0, 1, 1, 1, 1, 1, 0, 0); break;
+        case NOT:
+            attr->viewable(0, 1, 0, 0, 0, 0, 0, 0, 0);
+            break;
+        case CUBE:
+            attr->viewable(0, 0, 1, 0, 0, 0, 0, 1, 0);
+            attr->RLabel->setText("边长");
+            attr->R->setValue(models[widget->selectedID-1].entityAttr[0]);
+            break;
+        case PRISMOID:
+            attr->viewable(0, 0, 1, 1, 1, 1, 1, 0, 0);
+            attr->faceNum->setValue(models[widget->selectedID-1].entityAttr[0]);
+            attr->height->setValue(models[widget->selectedID-1].entityAttr[1]);
+            attr->botR->setValue(models[widget->selectedID-1].entityAttr[2]);
+            attr->topR->setValue(models[widget->selectedID-1].entityAttr[3]);
+            break;
+        case SPHERE:
+            attr->viewable(0, 0, 1, 0, 0, 0, 0, 1, 1);
+            attr->RLabel->setText("半径");
+            attr->R->setValue(models[widget->selectedID-1].entityAttr[0]);
+            attr->density->setValue(models[widget->selectedID-1].entityAttr[1]);
+            break;
         default: break;
         }
     }
@@ -253,12 +290,15 @@ void MainWindow::reshapeEntity()
     }
     else if(models[widget->selectedID-1].type == PRISMOID){
         Prismoid prismoid(attr->faceNum->value(), attr->height->value(), attr->botR->value(), attr->topR->value());
-        qDebug()<<attr->faceNum->value();
-        qDebug()<<attr->height->value();
-        qDebug()<<attr->botR->value();
-        qDebug()<<attr->topR->value();
         model P = prismoid.createPrismoid();
         P.type = PRISMOID;
         models[widget->selectedID-1] = P;
     }
+    else if(models[widget->selectedID-1].type == SPHERE){
+        Sphere sphere(attr->R->value(), attr->density->value());
+        model s = sphere.createSphere();
+        s.type = SPHERE;
+        models[widget->selectedID-1] = s;
+    }
 }
+

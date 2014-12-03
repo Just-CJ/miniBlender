@@ -56,7 +56,7 @@ public:
 
     QHBoxLayout *layout6;
     QLabel *densityLabel;
-    QDoubleSpinBox *density;
+    QSpinBox *density;
 
     QLabel *noSelect;
     QLabel *selectObj;

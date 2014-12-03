@@ -3,19 +3,29 @@
 
 #include "OBJ.h"
 
-model createCube(float r = 50);
+model createCube(float l = 50);
 
-//棱柱和棱台使用一个类表示。棱柱可以看做底面和顶面外接圆半径相同的棱台。
+//柱体和台体使用一个类表示。棱柱可以看做底面和顶面外接圆半径相同的棱台；圆柱和圆台可以看做侧面数特别多的棱柱和棱台
 class Prismoid{
 public:
     Prismoid(int fn = 3, float h = 50, float r = 50, float rt = 30);
     model createPrismoid();
+private:
     int faceNum;
     float height;
     //底面外接圆半径
     float r;
     //顶面外接圆半径
     float rTop;
+};
+
+class Sphere{
+public:
+    Sphere(float r = 50, int dens = 50);
+    model createSphere();
+private:
+    float r;
+    int density;
 };
 
 #endif // ENITY_H

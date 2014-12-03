@@ -9,8 +9,8 @@ attributeWidget::attributeWidget(QWidget *parent) :
     button = new QPushButton(tr("Reshape"));
     mainLayout = new QVBoxLayout;
 
-    noSelect = new QLabel(tr("未选中物体，请双击选中物体"));
-    selectObj = new QLabel;
+    noSelect = new QLabel(tr("未选中图元，请双击选中图元"));
+    selectObj = new QLabel(tr("这是导入的模型，无法重塑！"));
     mainLayout->addWidget(noSelect);
     mainLayout->addWidget(selectObj);
 
@@ -45,7 +45,7 @@ attributeWidget::attributeWidget(QWidget *parent) :
     layout5->addWidget(R);
 
     densityLabel = new QLabel(tr("线密度"));
-    density = new QDoubleSpinBox;
+    density = new QSpinBox;
     layout6 = new QHBoxLayout;
     layout6->addWidget(densityLabel);
     layout6->addWidget(density);

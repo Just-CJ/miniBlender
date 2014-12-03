@@ -102,7 +102,7 @@
          </property>
          <widget class="QWidget" name="tab_2">
           <attribute name="title">
-           <string>Attribute</string>
+           <string>Entity</string>
           </attribute>
           <widget class="QWidget" name="verticalLayoutWidget_2">
            <property name="geometry">
@@ -325,6 +325,7 @@
     <addaction name="actionAdd_cube"/>
     <addaction name="actionAdd_prism"/>
     <addaction name="actionAdd_prismoid"/>
+    <addaction name="actionAdd_sphere"/>
    </widget>
    <widget class="QMenu" name="menuControl">
     <property name="title">
@@ -333,7 +334,6 @@
     <addaction name="actionLight_On_Off"/>
     <addaction name="actionWire_Solid"/>
     <addaction name="separator"/>
-    <addaction name="actionFresh_List"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEnity"/>
@@ -353,7 +353,6 @@
    <addaction name="actionImport_OBJ_File"/>
    <addaction name="actionExport_OBJ_File"/>
    <addaction name="separator"/>
-   <addaction name="actionFresh_List"/>
    <addaction name="actionLight_On_Off"/>
    <addaction name="actionWire_Solid"/>
   </widget>
@@ -431,15 +430,6 @@
     <string>Wire / Solid</string>
    </property>
   </action>
-  <action name="actionFresh_List">
-   <property name="icon">
-    <iconset resource="Icons.qrc">
-     <normaloff>:/new/prefix1/Icons/Fresh.ico</normaloff>:/new/prefix1/Icons/Fresh.ico</iconset>
-   </property>
-   <property name="text">
-    <string>Fresh List</string>
-   </property>
-  </action>
   <action name="actionAdd_prism">
    <property name="text">
     <string>Add prism</string>
@@ -448,6 +438,11 @@
   <action name="actionAdd_prismoid">
    <property name="text">
     <string>Add prismoid</string>
+   </property>
+  </action>
+  <action name="actionAdd_sphere">
+   <property name="text">
+    <string>Add sphere</string>
    </property>
   </action>
  </widget>
@@ -465,38 +460,6 @@
     <hint type="sourcelabel">
      <x>1069</x>
      <y>332</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>613</x>
-     <y>380</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>menuBar</sender>
-   <signal>triggered(QAction*)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>updateCatalog()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>613</x>
-     <y>11</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>613</x>
-     <y>380</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>mainToolBar</sender>
-   <signal>actionTriggered(QAction*)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>updateCatalog()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>613</x>
-     <y>39</y>
     </hint>
     <hint type="destinationlabel">
      <x>613</x>

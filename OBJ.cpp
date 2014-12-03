@@ -41,6 +41,8 @@ model::model(){
   objCenter[1] = 0.0;
   objCenter[2] = 0.0;
   DisplayListID = 0;
+
+  type = NOT;
 }
 
 model::~model(){
