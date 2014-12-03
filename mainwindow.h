@@ -57,6 +57,8 @@ private slots:
 
     void on_actionAdd_sphere_triggered();
 
+    void on_actionScreen_Capture_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

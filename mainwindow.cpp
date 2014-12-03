@@ -42,12 +42,13 @@ void MainWindow::on_actionImport_OBJ_File_triggered()
                                                     tr("open file"),
                                                     "E:/Study/ComputerGraphics/qtopengl/OBJ",
                                                     tr("OBJ file(*.obj)"));
-    widget->initOBJ();
-    loadOBJ(fileName.toStdString().c_str());
-    //widget->objCenter = calObjCenter();
-    widget->updateGL();
+    if(fileName != ""){
+      widget->initOBJ();
+      loadOBJ(fileName.toStdString().c_str());
+      widget->updateGL();
 
-    emit objectSubmit();
+      emit objectSubmit();
+      }
 }
 
 void MainWindow::on_actionWire_Solid_triggered()
@@ -106,8 +107,10 @@ void MainWindow::on_doubleSpinBox_valueChanged(double rotate_x)
             glPopMatrix();
             for(int i=0; i<16; i++)
               widget->lastRotateMatrix[i] = models[widget->selectedID-1].rotateMatrix[i];
+            disconnect(ui->doubleSpinBox_2, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_2_valueChanged(double)));
             ui->doubleSpinBox_2->setValue(0.0);
             ui->horizontalSlider_2->setValue(0);
+            connect(ui->doubleSpinBox_2, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_2_valueChanged(double)));
           }
         if(ui->doubleSpinBox_3->text().toFloat() != 0.0){
             glPushMatrix();
@@ -117,15 +120,16 @@ void MainWindow::on_doubleSpinBox_valueChanged(double rotate_x)
             glPopMatrix();
             for(int i=0; i<16; i++)
               widget->lastRotateMatrix[i] = models[widget->selectedID-1].rotateMatrix[i];
+            disconnect(ui->doubleSpinBox_3, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_3_valueChanged(double)));
             ui->doubleSpinBox_3->setValue(0.0);
             ui->horizontalSlider_3->setValue(0);
+            connect(ui->doubleSpinBox_3, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_3_valueChanged(double)));
           }
         glPushMatrix();
         glLoadMatrixf(widget->lastRotateMatrix);
         glRotatef(rotate_x, 1, 0, 0);
         glGetFloatv(GL_MODELVIEW_MATRIX, models[widget->selectedID-1].rotateMatrix);
         glPopMatrix();
-        //models[widget->selectedID-1].rotate_x = rotate_x;
       }
 }
 
@@ -140,8 +144,10 @@ void MainWindow::on_doubleSpinBox_2_valueChanged(double rotate_y)
               glPopMatrix();
               for(int i=0; i<16; i++)
                 widget->lastRotateMatrix[i] = models[widget->selectedID-1].rotateMatrix[i];
+              disconnect(ui->doubleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_valueChanged(double)));
               ui->doubleSpinBox->setValue(0.0);
               ui->horizontalSlider->setValue(0);
+              connect(ui->doubleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_valueChanged(double)));
             }
           if(ui->doubleSpinBox_3->text().toFloat() != 0.0){
               glPushMatrix();
@@ -151,15 +157,16 @@ void MainWindow::on_doubleSpinBox_2_valueChanged(double rotate_y)
               glPopMatrix();
               for(int i=0; i<16; i++)
                 widget->lastRotateMatrix[i] = models[widget->selectedID-1].rotateMatrix[i];
+              disconnect(ui->doubleSpinBox_3, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_3_valueChanged(double)));
               ui->doubleSpinBox_3->setValue(0.0);
               ui->horizontalSlider_3->setValue(0);
+              connect(ui->doubleSpinBox_3, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_3_valueChanged(double)));
             }
           glPushMatrix();
           glLoadMatrixf(widget->lastRotateMatrix);
           glRotatef(rotate_y, 0, 1, 0);
           glGetFloatv(GL_MODELVIEW_MATRIX, models[widget->selectedID-1].rotateMatrix);
           glPopMatrix();
-          //models[widget->selectedID-1].rotate_y = rotate_y;
         }
 }
 
@@ -174,8 +181,10 @@ void MainWindow::on_doubleSpinBox_3_valueChanged(double rotate_z)
               glPopMatrix();
               for(int i=0; i<16; i++)
                 widget->lastRotateMatrix[i] = models[widget->selectedID-1].rotateMatrix[i];
+              disconnect(ui->doubleSpinBox_2, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_2_valueChanged(double)));
               ui->doubleSpinBox_2->setValue(0.0);
               ui->horizontalSlider_2->setValue(0);
+              connect(ui->doubleSpinBox_2, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_2_valueChanged(double)));
             }
           if(ui->doubleSpinBox->text().toFloat() != 0.0){
               glPushMatrix();
@@ -185,15 +194,17 @@ void MainWindow::on_doubleSpinBox_3_valueChanged(double rotate_z)
               glPopMatrix();
               for(int i=0; i<16; i++)
                 widget->lastRotateMatrix[i] = models[widget->selectedID-1].rotateMatrix[i];
+              disconnect(ui->doubleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_valueChanged(double)));
               ui->doubleSpinBox->setValue(0.0);
               ui->horizontalSlider->setValue(0);
+              connect(ui->doubleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(on_doubleSpinBox_valueChanged(double))
+                      );
             }
           glPushMatrix();
           glLoadMatrixf(widget->lastRotateMatrix);
           glRotatef(rotate_z, 0, 0, 1);
           glGetFloatv(GL_MODELVIEW_MATRIX, models[widget->selectedID-1].rotateMatrix);
           glPopMatrix();
-          //models[widget->selectedID-1].rotate_z = rotate_z;
         }
 }
 
@@ -202,7 +213,7 @@ void MainWindow::updateCatalog()
     ui->treeWidget->clear();
     QTreeWidgetItem *Objects = new QTreeWidgetItem(QStringList()<<"Objects:");
     ui->treeWidget->addTopLevelItem(Objects);
-    for(int i = 0; i < models.size(); i++){
+    for(unsigned int i = 0; i < models.size(); i++){
         QString name = "object" + QString::number(i + 1);
         QTreeWidgetItem *object = new QTreeWidgetItem(QStringList()<<name);
         Objects->addChild(object);
@@ -302,3 +313,15 @@ void MainWindow::reshapeEntity()
     }
 }
 
+
+void MainWindow::on_actionScreen_Capture_triggered()
+{
+  QImage image = widget->grabFrameBuffer(false);
+
+  QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("save file"),
+                                                    "E:/Study/ComputerGraphics/qtopengl/OBJ/export",
+                                                    tr("PNG file(*.png)"));
+
+  image.save(fileName, "png");
+}

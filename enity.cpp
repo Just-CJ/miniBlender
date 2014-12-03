@@ -193,7 +193,7 @@ model Sphere::createSphere(){
     }
 
 
-    for(int i = 0; i< sphere.vpoints.size()-density; i++){
+    for(unsigned int i = 0; i< sphere.vpoints.size()-density; i++){
         f.values_v(i+1, i+1+density, i+2+density, i+2);
         f.values_vn(i+1, i+1+density, i+2+density, i+2);
         sphere.faces.push_back(f);

@@ -47,8 +47,8 @@
      <rect>
       <x>1</x>
       <y>1</y>
-      <width>1232</width>
-      <height>681</height>
+      <width>1233</width>
+      <height>682</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -98,7 +98,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab_2">
           <attribute name="title">
@@ -302,7 +302,7 @@
      <x>0</x>
      <y>0</y>
      <width>1227</width>
-     <height>23</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -315,6 +315,8 @@
     <addaction name="separator"/>
     <addaction name="actionImport_OBJ_File"/>
     <addaction name="actionExport_OBJ_File"/>
+    <addaction name="separator"/>
+    <addaction name="actionScreen_Capture"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -443,6 +445,11 @@
   <action name="actionAdd_sphere">
    <property name="text">
     <string>Add sphere</string>
+   </property>
+  </action>
+  <action name="actionScreen_Capture">
+   <property name="text">
+    <string>Screen Capture</string>
    </property>
   </action>
  </widget>
