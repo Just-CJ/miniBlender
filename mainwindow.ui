@@ -302,7 +302,7 @@
      <x>0</x>
      <y>0</y>
      <width>1227</width>
-     <height>27</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -328,6 +328,8 @@
     <addaction name="actionAdd_prism"/>
     <addaction name="actionAdd_prismoid"/>
     <addaction name="actionAdd_sphere"/>
+    <addaction name="actionAdd_cylinder"/>
+    <addaction name="actionAdd_cone"/>
    </widget>
    <widget class="QMenu" name="menuControl">
     <property name="title">
@@ -450,6 +452,16 @@
   <action name="actionScreen_Capture">
    <property name="text">
     <string>Screen Capture</string>
+   </property>
+  </action>
+  <action name="actionAdd_cylinder">
+   <property name="text">
+    <string>Add cylinder</string>
+   </property>
+  </action>
+  <action name="actionAdd_cone">
+   <property name="text">
+    <string>Add cone</string>
    </property>
   </action>
  </widget>
