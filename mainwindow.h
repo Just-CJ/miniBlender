@@ -59,6 +59,10 @@ private slots:
 
     void on_actionScreen_Capture_triggered();
 
+    void on_actionAdd_cylinder_triggered();
+
+    void on_actionAdd_cone_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -260,6 +260,26 @@ void MainWindow::on_actionAdd_sphere_triggered()
     emit objectSubmit();
 }
 
+void MainWindow::on_actionAdd_cylinder_triggered()
+{
+    Prismoid prismoid(50,50,50,50);
+    model P = prismoid.createPrismoid();
+    P.type = CYLINDER;
+    models.push_back(P);
+
+    emit objectSubmit();
+}
+
+void MainWindow::on_actionAdd_cone_triggered()
+{
+    Cone cone;
+    model C = cone.createCone();
+    C.type = CONE;
+    models.push_back(C);
+
+    emit objectSubmit();
+}
+
 void MainWindow::selectedAttribute()
 {
     if(widget->selectedID){
@@ -275,9 +295,13 @@ void MainWindow::selectedAttribute()
         case PRISMOID:
             attr->viewable(0, 0, 1, 1, 1, 1, 1, 0, 0);
             attr->faceNum->setValue(models[widget->selectedID-1].entityAttr[0]);
+            attr->faceNumLabel->setText("侧面数");
+            attr->faceNum->setMinimum(0);
             attr->height->setValue(models[widget->selectedID-1].entityAttr[1]);
             attr->botR->setValue(models[widget->selectedID-1].entityAttr[2]);
+            attr->bottomRLabel->setText("底面外接圆半径");
             attr->topR->setValue(models[widget->selectedID-1].entityAttr[3]);
+            attr->topRLabel->setText("顶面外接圆半径");
             break;
         case SPHERE:
             attr->viewable(0, 0, 1, 0, 0, 0, 0, 1, 1);
@@ -285,6 +309,22 @@ void MainWindow::selectedAttribute()
             attr->R->setValue(models[widget->selectedID-1].entityAttr[0]);
             attr->density->setValue(models[widget->selectedID-1].entityAttr[1]);
             break;
+        case CYLINDER:
+            attr->viewable(0, 0, 1, 0, 0, 1, 1, 1, 0);
+            attr->RLabel->setText("半径");
+            attr->R->setValue(models[widget->selectedID-1].entityAttr[2]);
+            attr->faceNumLabel->setText("线密度");
+            attr->faceNum->setMinimum(30);
+            attr->faceNum->setValue(models[widget->selectedID-1].entityAttr[0]);
+            attr->height->setValue(models[widget->selectedID-1].entityAttr[1]);
+        case CONE:
+            attr->viewable(0, 0, 1, 0, 0, 1, 1, 1, 0);
+            attr->RLabel->setText("半径");
+            attr->R->setValue(models[widget->selectedID-1].entityAttr[2]);
+            attr->faceNumLabel->setText("线密度");
+            attr->faceNum->setMinimum(30);
+            attr->faceNum->setValue(models[widget->selectedID-1].entityAttr[0]);
+            attr->height->setValue(models[widget->selectedID-1].entityAttr[1]);
         default: break;
         }
     }
@@ -310,6 +350,18 @@ void MainWindow::reshapeEntity()
         model s = sphere.createSphere();
         s.type = SPHERE;
         models[widget->selectedID-1] = s;
+    }
+    else if(models[widget->selectedID-1].type == CYLINDER){
+        Prismoid prismoid(attr->faceNum->value(), attr->height->value(), attr->R->value(), attr->R->value());
+        model P = prismoid.createPrismoid();
+        P.type = CYLINDER;
+        models[widget->selectedID-1] = P;
+    }
+    else if(models[widget->selectedID-1].type == CONE){
+        Cone cone(attr->R->value(), attr->height->value(), attr->faceNum->value());
+        model C = cone.createCone();
+        C.type = CONE;
+        models[widget->selectedID-1] = C;
     }
 }
 

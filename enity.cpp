@@ -206,3 +206,59 @@ model Sphere::createSphere(){
     sphere.min_X = sphere.min_Y = sphere.min_Z = -r;
     return sphere;
 }
+
+Cone::Cone(float r, float height, int faceNum){
+    this->r = r;
+    this->height = height;
+    this->faceNum = faceNum;
+}
+
+model Cone::createCone(){
+    model cone;
+    vpoint vp;
+    //vnormal vn;
+    face f;
+
+    f.values_vn(0, 0, 0, 0);
+    f.values_vt(0, 0, 0, 0);
+
+    vp.values(0, 0, height/2);
+    //vn.values(0, 0, 1);
+    cone.vpoints.push_back(vp);
+    //cone.vnormals.push_back(vn);
+
+    vp.values(0, 0, -height/2);
+    //vn.values((0, 0, -1));
+    cone.vpoints.push_back(vp);
+    //cone.vnormals.push_back(vn);
+    for(int i = 0; i< faceNum; i++){
+        float theta = i * 2*M_PI/faceNum;
+        float x = r*cos(theta);
+        float y = r*sin(theta);
+        vp.values(x, y, -height/2);
+        cone.vpoints.push_back(vp);
+    }
+    for(int i = 0; i< faceNum; i++){
+        if(i == faceNum - 1){
+            f.values_v(1, i+3, 3);
+            cone.faces.push_back(f);
+            f.values_v(2, i+3, 3);
+            cone.faces.push_back(f);
+        }
+        else{
+            f.values_v(1, i+3, i+4);
+            cone.faces.push_back(f);
+            f.values_v(2, i+3, i+4);
+            cone.faces.push_back(f);
+        }
+    }
+    cone.genDisplayList();
+    cone.entityAttr.push_back(r);
+    cone.entityAttr.push_back(height);
+    cone.entityAttr.push_back(faceNum);
+    cone.max_X = cone.max_Y = r;
+    cone.min_X = cone.min_Y = -r;
+    cone.max_Z = height/2;
+    cone.min_Z = -height/2;
+    return cone;
+}

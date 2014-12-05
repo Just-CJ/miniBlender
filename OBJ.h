@@ -82,7 +82,8 @@ enum entityType{
     CUBE,
     PRISMOID,
     CYLINDER,
-    SPHERE
+    SPHERE,
+    CONE
 };
 
 

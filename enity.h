@@ -28,4 +28,14 @@ private:
     int density;
 };
 
+class Cone{
+public:
+    Cone(float r = 50, float height = 50, int faceNum = 50);
+    model createCone();
+private:
+    float r;
+    float height;
+    int faceNum;
+};
+
 #endif // ENITY_H
