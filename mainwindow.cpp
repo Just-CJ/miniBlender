@@ -377,3 +377,12 @@ void MainWindow::on_actionScreen_Capture_triggered()
 
   image.save(fileName, "png");
 }
+
+void MainWindow::on_actionExport_OBJ_File_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("save file"),
+                                                    "E:/Study/ComputerGraphics/qtopengl/OBJ/export",
+                                                    tr("OBJ file(*.obj)"));
+    exportOBJ(fileName);
+}

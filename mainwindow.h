@@ -63,6 +63,8 @@ private slots:
 
     void on_actionAdd_cone_triggered();
 
+    void on_actionExport_OBJ_File_triggered();
+
 private:
     Ui::MainWindow *ui;
 };
