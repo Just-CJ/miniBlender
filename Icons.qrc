@@ -8,5 +8,6 @@
         <file>Icons/saveProject.ico</file>
         <file>Icons/wireMode.ico</file>
         <file>Icons/Fresh.ico</file>
+        <file>Icons/delete.ico</file>
     </qresource>
 </RCC>

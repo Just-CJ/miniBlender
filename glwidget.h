@@ -35,6 +35,9 @@ public:
 signals:
     void model_select();
 
+//Added to select by treeView --Lkx
+public slots:
+    void modelSelect(int SelectedID);
 
 protected:
     void initializeGL();

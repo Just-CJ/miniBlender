@@ -47,8 +47,8 @@
      <rect>
       <x>1</x>
       <y>1</y>
-      <width>1233</width>
-      <height>682</height>
+      <width>1232</width>
+      <height>681</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -98,8 +98,65 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
+         <widget class="QWidget" name="tab_4">
+          <attribute name="title">
+           <string>Attribute</string>
+          </attribute>
+          <widget class="QWidget" name="layoutWidget">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>40</y>
+             <width>241</width>
+             <height>81</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>坐标</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_4"/>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_5"/>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_6"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>缩放</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_7"/>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_8"/>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_9"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
          <widget class="QWidget" name="tab_2">
           <attribute name="title">
            <string>Entity</string>
@@ -284,6 +341,9 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
          <column>
           <property name="text">
            <string notr="true">Object List</string>
@@ -338,6 +398,7 @@
     <addaction name="actionLight_On_Off"/>
     <addaction name="actionWire_Solid"/>
     <addaction name="separator"/>
+    <addaction name="actionDelete"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEnity"/>
@@ -359,6 +420,7 @@
    <addaction name="separator"/>
    <addaction name="actionLight_On_Off"/>
    <addaction name="actionWire_Solid"/>
+   <addaction name="actionDelete"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionCreate_Project">
@@ -462,6 +524,20 @@
   <action name="actionAdd_cone">
    <property name="text">
     <string>Add cone</string>
+   </property>
+  </action>
+  <action name="actionSelect">
+   <property name="text">
+    <string>Select</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/delete.ico</normaloff>:/new/prefix1/Icons/delete.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
    </property>
   </action>
  </widget>

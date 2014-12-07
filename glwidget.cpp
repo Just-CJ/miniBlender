@@ -184,6 +184,28 @@ void GLWidget::processHits(GLint hits, GLuint buffer[]){
      //qDebug()<<"test";
 }
 
+void GLWidget::modelSelect(int SelectedID){
+    if(selectedID != SelectedID && selectedID!=0){
+        models[selectedID-1].isSelected = false;//选中了别的对象，取消前一个对象的选中状态，保证只有一个对象被选中
+        models[SelectedID-1].isSelected = true;
+        selectedID = SelectedID;
+        for(int i=0; i<16; i++)
+          lastRotateMatrix[i] = models[selectedID-1].rotateMatrix[i];
+        emit model_select();
+    }
+    else if(selectedID == 0){
+        models[SelectedID-1].isSelected = true;
+        selectedID = SelectedID;
+        for(int i=0; i<16; i++)
+          lastRotateMatrix[i] = models[selectedID-1].rotateMatrix[i];
+        emit model_select();
+    }
+    else if(selectedID == SelectedID){
+        models[selectedID-1].isSelected = false;//选中的物体再次双击时取消选中
+        selectedID = 0;
+        emit model_select();
+    }
+}
 
 void GLWidget::selectModel(int x, int y){
   GLuint selectBuf[SELBUFSIZE];
