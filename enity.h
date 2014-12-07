@@ -30,7 +30,7 @@ private:
 
 class Cone{
 public:
-    Cone(float r = 50, float height = 50, int faceNum = 50);
+    Cone(float r = 30, float height = 50, int faceNum = 50);
     model createCone();
 private:
     float r;

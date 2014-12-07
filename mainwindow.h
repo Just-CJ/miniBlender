@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTreeWidget>
 #include "glwidget.h"
 #include "attributewidget.h"
 
@@ -20,7 +21,9 @@ public:
     ~MainWindow();
 
 signals:
-    void objectSubmit();
+    void objectSubmit(bool EntityOrObject);
+
+    void sendSelectOBJ(int SelectID);
 
 private slots:
     void initSpinBoxAndSlider();
@@ -28,6 +31,8 @@ private slots:
     void selectedAttribute();
 
     void reshapeEntity();
+
+    void getSelectedItem();
 
     void on_actionImport_OBJ_File_triggered();
 
@@ -47,7 +52,9 @@ private slots:
 
     void on_doubleSpinBox_3_valueChanged(double arg1);
 
-    void updateCatalog();
+    void updateCatalog(bool EntityOrObject);
+
+    void initialCatalog();
 
     void on_actionAdd_cube_triggered();
 
@@ -62,6 +69,16 @@ private slots:
     void on_actionAdd_cylinder_triggered();
 
     void on_actionAdd_cone_triggered();
+
+    void on_actionExport_OBJ_File_triggered();
+
+    void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
+    void on_treeWidget_customContextMenuRequested(const QPoint &pos);
+
+    void on_actionSelect_triggered();
+
+    void on_actionDelete_triggered();
 
 private:
     Ui::MainWindow *ui;

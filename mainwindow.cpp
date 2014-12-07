@@ -10,6 +10,16 @@
 
 using namespace std;
 extern vector<model> models;
+struct attribute{
+    QString modelName;
+    int modelIndex;
+};
+vector<attribute> objAttr;
+vector<attribute> entityAttr;
+int indexCounter;
+
+//用于右键菜单
+QTreeWidgetItem* curItem;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -24,16 +34,41 @@ MainWindow::MainWindow(QWidget *parent) :
 
     attr = new attributeWidget();
     ui->verticalLayout_4->addWidget(attr);
+    initialCatalog();
+    indexCounter = 0;
 
     connect(widget, SIGNAL(model_select()), this, SLOT(initSpinBoxAndSlider()));
     connect(widget, SIGNAL(model_select()), this, SLOT(selectedAttribute()));
+    connect(widget, SIGNAL(model_select()), this, SLOT(getSelectedItem()));
     connect(attr, SIGNAL(reshape()), this, SLOT(reshapeEntity()));
-    connect(this, SIGNAL(objectSubmit()), this, SLOT(updateCatalog()));
+    connect(this, SIGNAL(objectSubmit(bool)), this, SLOT(updateCatalog(bool)));
+    connect(this, SIGNAL(sendSelectOBJ(int)), widget, SLOT(modelSelect(int)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::getSelectedItem()
+{
+    int id = widget->selectedID-1;
+    if(id < 0)
+        return;
+    for(unsigned int i = 0; i< objAttr.size(); i++){
+        if(objAttr[i].modelIndex == id){
+            QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(0);
+            curItem = parent->child(i);
+        }
+    }
+    for(unsigned int i = 0; i< entityAttr.size(); i++){
+        if(entityAttr[i].modelIndex == id){
+            QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(1);
+            curItem = parent->child(i);
+        }
+    }
+//    qDebug()<<"curItem";
+//    qDebug()<<curItem->text(0);
 }
 
 void MainWindow::on_actionImport_OBJ_File_triggered()
@@ -47,7 +82,7 @@ void MainWindow::on_actionImport_OBJ_File_triggered()
       loadOBJ(fileName.toStdString().c_str());
       widget->updateGL();
 
-      emit objectSubmit();
+      emit objectSubmit(false);
       }
 }
 
@@ -208,16 +243,57 @@ void MainWindow::on_doubleSpinBox_3_valueChanged(double rotate_z)
         }
 }
 
-void MainWindow::updateCatalog()
+void MainWindow::initialCatalog()
 {
     ui->treeWidget->clear();
-    QTreeWidgetItem *Objects = new QTreeWidgetItem(QStringList()<<"Objects:");
+    QTreeWidgetItem *Objects = new QTreeWidgetItem(QStringList()<<"Objects");
     ui->treeWidget->addTopLevelItem(Objects);
-    for(unsigned int i = 0; i < models.size(); i++){
-        QString name = "object" + QString::number(i + 1);
-        QTreeWidgetItem *object = new QTreeWidgetItem(QStringList()<<name);
-        Objects->addChild(object);
+    QTreeWidgetItem *Entities = new QTreeWidgetItem(QStringList()<<"Entities");
+    ui->treeWidget->addTopLevelItem(Entities);
+}
+
+void MainWindow::updateCatalog(bool EntityOrObject)
+{
+    if(EntityOrObject == true){
+        QTreeWidgetItem *topItem = ui->treeWidget->topLevelItem(1);
+        QString name = "entity" + QString::number(entityAttr.size()+1);
+        attribute ent;
+        ent.modelName = name;
+        ent.modelIndex = indexCounter;
+        entityAttr.push_back(ent);
+        QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
+        topItem->addChild(newObj);
+
+        indexCounter++;
     }
+    else{
+        QTreeWidgetItem *topItem = ui->treeWidget->topLevelItem(0);
+        QString name = "object" + QString::number(objAttr.size()+1);
+        attribute obj;
+        obj.modelName = name;
+        obj.modelIndex = indexCounter;
+        objAttr.push_back(obj);
+        QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
+        topItem->addChild(newObj);
+
+        indexCounter++;
+    }
+}
+
+void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    QTreeWidgetItem *parent = item->parent();
+    if(parent == NULL)
+        return;
+    int index = parent->indexOfChild(item);
+    int currentModelID;
+    if(parent->text(0) == "Objects")
+       currentModelID = objAttr[index].modelIndex;
+    else
+       currentModelID = entityAttr[index].modelIndex;
+//    qDebug()<<currentModelID;
+
+    emit sendSelectOBJ(currentModelID + 1);
 }
 
 
@@ -227,7 +303,7 @@ void MainWindow::on_actionAdd_cube_triggered()
     Cube.type = CUBE;
     models.push_back(Cube);
 
-    emit objectSubmit();
+    emit objectSubmit(true);
 }
 
 void MainWindow::on_actionAdd_prism_triggered()
@@ -237,7 +313,7 @@ void MainWindow::on_actionAdd_prism_triggered()
     P.type = PRISMOID;
     models.push_back(P);
 
-    emit objectSubmit();
+    emit objectSubmit(true);
 }
 
 void MainWindow::on_actionAdd_prismoid_triggered()
@@ -247,7 +323,7 @@ void MainWindow::on_actionAdd_prismoid_triggered()
     P.type = PRISMOID;
     models.push_back(P);
 
-    emit objectSubmit();
+    emit objectSubmit(true);
 }
 
 void MainWindow::on_actionAdd_sphere_triggered()
@@ -257,7 +333,7 @@ void MainWindow::on_actionAdd_sphere_triggered()
     s.type = SPHERE;
     models.push_back(s);
 
-    emit objectSubmit();
+    emit objectSubmit(true);
 }
 
 void MainWindow::on_actionAdd_cylinder_triggered()
@@ -267,7 +343,7 @@ void MainWindow::on_actionAdd_cylinder_triggered()
     P.type = CYLINDER;
     models.push_back(P);
 
-    emit objectSubmit();
+    emit objectSubmit(true);
 }
 
 void MainWindow::on_actionAdd_cone_triggered()
@@ -277,7 +353,7 @@ void MainWindow::on_actionAdd_cone_triggered()
     C.type = CONE;
     models.push_back(C);
 
-    emit objectSubmit();
+    emit objectSubmit(true);
 }
 
 void MainWindow::selectedAttribute()
@@ -376,4 +452,57 @@ void MainWindow::on_actionScreen_Capture_triggered()
                                                     tr("PNG file(*.png)"));
 
   image.save(fileName, "png");
+}
+
+void MainWindow::on_actionExport_OBJ_File_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("save file"),
+                                                    "E:/Study/ComputerGraphics/qtopengl/OBJ/export",
+                                                    tr("OBJ file(*.obj)"));
+    exportOBJ(fileName);
+}
+
+void MainWindow::on_treeWidget_customContextMenuRequested(const QPoint &pos)
+{
+    curItem = ui->treeWidget->itemAt(pos);
+    if(curItem==NULL || curItem->parent()==NULL)
+        return;
+    QMenu *popMenu = new QMenu(this);
+    popMenu->addAction(ui->actionSelect);
+    popMenu->addAction(ui->actionDelete);
+    popMenu->exec(QCursor::pos());
+}
+
+void MainWindow::on_actionSelect_triggered()
+{
+    QTreeWidgetItem *parent = curItem->parent();
+    if(parent == NULL)
+        return;
+    int index = parent->indexOfChild(curItem);
+    int currentModelID;
+    if(parent->text(0) == "Objects")
+       currentModelID = objAttr[index].modelIndex;
+    else
+       currentModelID = entityAttr[index].modelIndex;
+
+    emit sendSelectOBJ(currentModelID + 1);
+}
+
+void MainWindow::on_actionDelete_triggered()
+{
+    QTreeWidgetItem *parent = curItem->parent();
+    if(parent == NULL)
+        return;
+    int index = parent->indexOfChild(curItem);
+    int currentModelID;
+    if(parent->text(0) == "Objects")
+       currentModelID = objAttr[index].modelIndex;
+    else
+       currentModelID = entityAttr[index].modelIndex;
+
+    vector<model>::iterator it = models.begin() + currentModelID;
+    models.erase(it);
+
+    delete curItem;
 }
