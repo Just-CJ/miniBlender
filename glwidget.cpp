@@ -125,6 +125,7 @@ void GLWidget::TranslateViewPoint(){
     models[selectedID-1].offset_y = LastOBJ_y - delta_y*sin(CurrentAngleY);
     models[selectedID-1].offset_z = LastOBJ_z - delta_x*sin(CurrentAngleZ) + delta_y*cos(CurrentAngleY)*cos(CurrentAngleZ);
     }
+  emit signal_updateAttr(selectedID);
 }
 
 
@@ -181,7 +182,6 @@ void GLWidget::processHits(GLint hits, GLuint buffer[]){
              emit model_select();
            }
        }
-     //qDebug()<<"test";
 }
 
 void GLWidget::modelSelect(unsigned int SelectedID){
@@ -205,6 +205,7 @@ void GLWidget::modelSelect(unsigned int SelectedID){
         selectedID = 0;
         emit model_select();
     }
+
 }
 
 void GLWidget::selectModel(int x, int y){
@@ -244,10 +245,7 @@ void GLWidget::selectModel(int x, int y){
       glLoadName(i+1);
       glPushMatrix();
       glTranslatef(models[i].offset_x, models[i].offset_y, models[i].offset_z);
-      glScalef(models[i].scale, models[i].scale, models[i].scale);
-      //glRotated(models[i].rotate_x, 1, 0, 0);
-      //glRotated(models[i].rotate_y, 0, 1, 0);
-      //glRotated(models[i].rotate_z, 0, 0, 1);
+      glScalef(models[i].scale_x, models[i].scale_y, models[i].scale_z);
       glMultMatrixf(models[i].rotateMatrix);
 
       models[i].callDisplayList();
@@ -268,6 +266,8 @@ void GLWidget::selectModel(int x, int y){
       selectedID = 0;
       emit model_select();
     }
+
+  emit signal_updateAttr(selectedID);
   glMatrixMode(GL_MODELVIEW);
   //qDebug()<<"test";
 
@@ -290,7 +290,6 @@ void GLWidget::mousePressEvent(QMouseEvent *e)
             LastOBJ_y = models[selectedID-1].offset_y;
             LastOBJ_z = models[selectedID-1].offset_z;
           }
-
       };break;
     }
 }
@@ -332,8 +331,20 @@ void GLWidget::mouseMoveEvent(QMouseEvent *e)
 
 void GLWidget::wheelEvent(QWheelEvent *e)//鼠标滑轮
 {
-    if(selectedID) e->delta() > 0 ? models[selectedID-1].scale += models[selectedID-1].scale*0.1f : models[selectedID-1].scale -= models[selectedID-1].scale*0.1f;
+    if(selectedID){
+        if(e->delta() > 0) {
+            models[selectedID-1].scale_x += models[selectedID-1].scale_x*0.1f;
+            models[selectedID-1].scale_y += models[selectedID-1].scale_y*0.1f;
+            models[selectedID-1].scale_z += models[selectedID-1].scale_z*0.1f;
+        }else{
+            models[selectedID-1].scale_x -= models[selectedID-1].scale_x*0.1f;
+            models[selectedID-1].scale_y -= models[selectedID-1].scale_y*0.1f;
+            models[selectedID-1].scale_z -= models[selectedID-1].scale_z*0.1f;
+        }
+      }
     else e->delta() > 0 ? main_scale += main_scale*0.1f : main_scale -= main_scale*0.1f;
+
+    emit signal_updateAttr(selectedID);
     this->updateGL();
 }
 
@@ -488,7 +499,8 @@ void GLWidget::paintGL()
     for(unsigned int i=0; i<models.size(); i++) {//循环绘制model
         glPushMatrix();
         glTranslatef(models[i].offset_x, models[i].offset_y, models[i].offset_z);//model自身的位移
-        glScalef(models[i].scale, models[i].scale, models[i].scale);//model自身的放大缩小
+        //glScalef(models[i].scale, models[i].scale, models[i].scale);//model自身的放大缩小
+        glScalef(models[i].scale_x, models[i].scale_y, models[i].scale_z);
 
         glMultMatrixf(models[i].rotateMatrix);//乘上旋转矩阵
 
@@ -505,6 +517,7 @@ void GLWidget::paintGL()
             glPopMatrix();
             glScalef(100,100,100);
             glDisable(GL_DEPTH_TEST);//让坐标系总显示在最前
+            glScalef(1.0/models[i].scale_x, 1.0/models[i].scale_y, 1.0/models[i].scale_z);
             drawCoordinate(); //obj的中心坐标系
             glEnable(GL_DEPTH_TEST);
           }

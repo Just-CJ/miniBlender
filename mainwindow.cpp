@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(widget, SIGNAL(model_select()), this, SLOT(initSpinBoxAndSlider()));
     connect(widget, SIGNAL(model_select()), this, SLOT(selectedAttribute()));
     connect(widget, SIGNAL(model_select()), this, SLOT(getSelectedItem()));
+    connect(widget, SIGNAL(signal_updateAttr(uint)), this, SLOT(updateAttribute(uint)));
     connect(attr, SIGNAL(reshape()), this, SLOT(reshapeEntity()));
     connect(this, SIGNAL(objectSubmit(bool)), this, SLOT(updateCatalog(bool)));
     connect(this, SIGNAL(sendSelectOBJ(unsigned int)), widget, SLOT(modelSelect(unsigned int)));
@@ -512,10 +513,82 @@ void MainWindow::on_actionDelete_triggered()
 
     indexCounter--;
 
-    if(parent->text(0) == "Objects")
+    if(parent->text(0) == "Objects") //删除objAttr和entityAttr里对应的项
        objAttr.erase(objAttr.begin()+index);
     else
        entityAttr.erase(entityAttr.begin()+index);
 
     delete curItem;
+}
+
+
+void MainWindow::updateAttribute(unsigned int selectedID){
+  disconnect(ui->display_scale_x, SIGNAL(valueChanged(double)), this, SLOT(on_display_scale_x_valueChanged(double)));
+  disconnect(ui->display_scale_y, SIGNAL(valueChanged(double)), this, SLOT(on_display_scale_y_valueChanged(double)));
+  disconnect(ui->display_scale_z, SIGNAL(valueChanged(double)), this, SLOT(on_display_scale_z_valueChanged(double)));
+  disconnect(ui->display_x, SIGNAL(valueChanged(double)), this, SLOT(on_display_x_valueChanged(double)));
+  disconnect(ui->display_y, SIGNAL(valueChanged(double)), this, SLOT(on_display_y_valueChanged(double)));
+  disconnect(ui->display_z, SIGNAL(valueChanged(double)), this, SLOT(on_display_z_valueChanged(double)));
+  if(selectedID){//有选中的物体
+        ui->display_x->setValue(models[selectedID-1].offset_x);
+        ui->display_y->setValue(models[selectedID-1].offset_y);
+        ui->display_z->setValue(models[selectedID-1].offset_z);
+
+        ui->display_scale_x->setValue(models[selectedID-1].scale_x);
+        ui->display_scale_y->setValue(models[selectedID-1].scale_y);
+        ui->display_scale_z->setValue(models[selectedID-1].scale_z);
+    }else{//没有选中的物体
+      //ui->display_x->setValue(widget->main_scale);
+      //ui->display_y->setValue(models[selectedID-1].offset_y);
+      //ui->display_z->setValue(models[selectedID-1].offset_z);
+    }
+
+  connect(ui->display_scale_x, SIGNAL(valueChanged(double)), this, SLOT(on_display_scale_x_valueChanged(double)));
+  connect(ui->display_scale_y, SIGNAL(valueChanged(double)), this, SLOT(on_display_scale_y_valueChanged(double)));
+  connect(ui->display_scale_z, SIGNAL(valueChanged(double)), this, SLOT(on_display_scale_z_valueChanged(double)));
+  connect(ui->display_x, SIGNAL(valueChanged(double)), this, SLOT(on_display_x_valueChanged(double)));
+  connect(ui->display_y, SIGNAL(valueChanged(double)), this, SLOT(on_display_y_valueChanged(double)));
+  connect(ui->display_z, SIGNAL(valueChanged(double)), this, SLOT(on_display_z_valueChanged(double)));
+}
+
+void MainWindow::on_display_x_valueChanged(double offset_x)
+{
+    if(widget->selectedID){
+        models[widget->selectedID-1].offset_x = offset_x;
+      }
+}
+
+void MainWindow::on_display_y_valueChanged(double offset_y)
+{
+  if(widget->selectedID){
+      models[widget->selectedID-1].offset_y = offset_y;
+    }
+}
+
+void MainWindow::on_display_z_valueChanged(double offset_z)
+{
+  if(widget->selectedID){
+      models[widget->selectedID-1].offset_z = offset_z;
+    }
+}
+
+void MainWindow::on_display_scale_x_valueChanged(double scale_x)
+{
+  if(widget->selectedID){
+      models[widget->selectedID-1].scale_x = scale_x;
+    }
+}
+
+void MainWindow::on_display_scale_y_valueChanged(double scale_y)
+{
+  if(widget->selectedID){
+      models[widget->selectedID-1].scale_y = scale_y;
+    }
+}
+
+void MainWindow::on_display_scale_z_valueChanged(double scale_z)
+{
+  if(widget->selectedID){
+      models[widget->selectedID-1].scale_z = scale_z;
+    }
 }
