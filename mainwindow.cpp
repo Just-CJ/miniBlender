@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(widget, SIGNAL(model_select()), this, SLOT(getSelectedItem()));
     connect(attr, SIGNAL(reshape()), this, SLOT(reshapeEntity()));
     connect(this, SIGNAL(objectSubmit(bool)), this, SLOT(updateCatalog(bool)));
-    connect(this, SIGNAL(sendSelectOBJ(int)), widget, SLOT(modelSelect(int)));
+    connect(this, SIGNAL(sendSelectOBJ(unsigned int)), widget, SLOT(modelSelect(unsigned int)));
 }
 
 MainWindow::~MainWindow()
@@ -502,7 +502,20 @@ void MainWindow::on_actionDelete_triggered()
        currentModelID = entityAttr[index].modelIndex;
 
     vector<model>::iterator it = models.begin() + currentModelID;
+    for(unsigned int i=0; i<models[currentModelID].mtls.size(); i++){ //删除绑定纹理
+        glDeleteTextures(1, &(models[currentModelID].mtls[i].texID));
+      }
+
+    models[currentModelID].deleteDisplayList();
+
     models.erase(it);
+
+    indexCounter--;
+
+    if(parent->text(0) == "Objects")
+       objAttr.erase(objAttr.begin()+index);
+    else
+       entityAttr.erase(entityAttr.begin()+index);
 
     delete curItem;
 }

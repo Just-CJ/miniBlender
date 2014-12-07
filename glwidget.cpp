@@ -184,7 +184,7 @@ void GLWidget::processHits(GLint hits, GLuint buffer[]){
      //qDebug()<<"test";
 }
 
-void GLWidget::modelSelect(int SelectedID){
+void GLWidget::modelSelect(unsigned int SelectedID){
     if(selectedID != SelectedID && selectedID!=0){
         models[selectedID-1].isSelected = false;//选中了别的对象，取消前一个对象的选中状态，保证只有一个对象被选中
         models[SelectedID-1].isSelected = true;

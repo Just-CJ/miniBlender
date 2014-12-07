@@ -23,7 +23,7 @@ public:
 signals:
     void objectSubmit(bool EntityOrObject);
 
-    void sendSelectOBJ(int SelectID);
+    void sendSelectOBJ(unsigned int SelectID);
 
 private slots:
     void initSpinBoxAndSlider();
