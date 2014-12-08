@@ -15,7 +15,7 @@ struct attribute{
     int modelIndex;
 };
 vector<attribute> objAttr;
-vector<attribute> Attr;
+vector<attribute> entityAttr;
 //用于TreeView右键菜单
 int indexCounter;
 QTreeWidgetItem* curItem;
@@ -63,12 +63,14 @@ void MainWindow::getSelectedItem()
             curItem = parent->child(i);
         }
     }
-    for(unsigned int i = 0; i< Attr.size(); i++){
-        if(Attr[i].modelIndex == id){
+    for(unsigned int i = 0; i< entityAttr.size(); i++){
+        if(entityAttr[i].modelIndex == id){
             QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(1);
             curItem = parent->child(i);
         }
     }
+    qDebug()<<curItem->text(0);
+    qDebug()<<id;
 }
 
 void MainWindow::on_actionImport_OBJ_File_triggered()
@@ -257,11 +259,11 @@ void MainWindow::updateCatalog(bool EntityOrObject)
 {
     if(EntityOrObject == true){
         QTreeWidgetItem *topItem = ui->treeWidget->topLevelItem(1);
-        QString name = "entity" + QString::number(Attr.size()+1);
+        QString name = "entity" + QString::number(entityAttr.size()+1);
         attribute ent;
         ent.modelName = name;
         ent.modelIndex = indexCounter;
-        Attr.push_back(ent);
+        entityAttr.push_back(ent);
         QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
         topItem->addChild(newObj);
 
@@ -291,7 +293,7 @@ void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int colu
     if(parent->text(column) == "Objects")
        currentModelID = objAttr[index].modelIndex;
     else
-       currentModelID = Attr[index].modelIndex;
+       currentModelID = entityAttr[index].modelIndex;
 //    qDebug()<<currentModelID;
 
     emit sendSelectOBJ(currentModelID + 1);
@@ -485,14 +487,14 @@ void MainWindow::on_actionSelect_triggered()
     if(parent->text(0) == "Objects")
        currentModelID = objAttr[index].modelIndex;
     else
-       currentModelID = Attr[index].modelIndex;
+       currentModelID = entityAttr[index].modelIndex;
 
     emit sendSelectOBJ(currentModelID + 1);
 }
 
 void MainWindow::on_actionDelete_triggered()
 {
-    if(curItem == NULL)
+    if(curItem == NULL || widget->selectedID == 0)
         return;
     QTreeWidgetItem *parent = curItem->parent();
     if(parent == NULL)
@@ -502,7 +504,7 @@ void MainWindow::on_actionDelete_triggered()
     if(parent->text(0) == "Objects")
        currentModelID = objAttr[index].modelIndex;
     else
-       currentModelID = Attr[index].modelIndex;
+       currentModelID = entityAttr[index].modelIndex;
 
     vector<model>::iterator it = models.begin() + currentModelID;
     for(unsigned int i=0; i<models[currentModelID].mtls.size(); i++){ //删除绑定纹理
@@ -515,12 +517,25 @@ void MainWindow::on_actionDelete_triggered()
 
     indexCounter--;
 
-    if(parent->text(0) == "Objects") //删除objAttr和Attr里对应的项
+    if(parent->text(0) == "Objects") //删除objAttr和entityAttr里对应的项
        objAttr.erase(objAttr.begin()+index);
     else
-       Attr.erase(Attr.begin()+index);
+       entityAttr.erase(entityAttr.begin()+index);
 
     delete curItem;
+
+    for(unsigned int i = 0; i< objAttr.size(); i++){
+        if(objAttr[i].modelIndex + 1 > (int)widget->selectedID){
+            objAttr[i].modelIndex--;
+        }
+    }
+    for(unsigned int i = 0; i< entityAttr.size(); i++){
+        if(entityAttr[i].modelIndex + 1 > (int)widget->selectedID){
+           entityAttr[i].modelIndex--;
+        }
+    }
+
+    widget->selectedID = 0;
 }
 
 void MainWindow::updateAttribute(unsigned int selectedID){
@@ -675,7 +690,7 @@ void MainWindow::on_actionSave_Project_triggered()
         }
         else{
             projectLog += QString::number(models[i].type) + "#";
-            for(unsigned int j = 0; j< models[j].entityAttr.size(); j++){
+            for(unsigned int j = 0; j< models[i].entityAttr.size(); j++){
                 projectLog += (QString::number(models[i].entityAttr[j]) + "%");
             }
             projectLog += "#";

@@ -43,10 +43,23 @@ model createCube(float l)
     for(int i = 0; i < 6; i++){
         cube.faces.push_back(f[i]);
     }
-    cube.genDisplayList();
+
     cube.max_X = cube.max_Y = cube.max_Z = l*1.03;
     cube.min_X = cube.min_Y = cube.min_Z = -l*1.03;
     cube.entityAttr.push_back(l);
+    object obj;
+    obj.vn_num = 6;
+    obj.vt_num = 0;
+    obj.v_num = 8;
+    obj.size = 6;
+    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = 0.2;
+    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = 0.8;
+    obj.emission[0] = obj.emission[1] = obj.emission[2] = 0;
+    obj.specular[0] = obj.specular[1] = obj.specular[2] = 0;
+    obj.texID = 0;
+    cube.objects.push_back(obj);
+    cube.calObjCenter();
+    cube.genDisplayList();
     return cube;
 }
 
@@ -145,7 +158,7 @@ model Prismoid::createPrismoid(){
         f.values_vn(2, 2, 2);
         prism.faces.push_back(f);
     }
-    prism.genDisplayList();
+
     prism.max_X = prism.max_Y = r;
     prism.min_X = prism.min_Y = -r;
     prism.max_Z = height/2;
@@ -154,6 +167,19 @@ model Prismoid::createPrismoid(){
     prism.entityAttr.push_back(height);
     prism.entityAttr.push_back(r);
     prism.entityAttr.push_back(rTop);
+    object obj;
+    obj.vn_num = prism.vnormals.size();
+    obj.vt_num = 0;
+    obj.v_num = prism.vpoints.size();
+    obj.size = prism.faces.size();
+    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = 0.2;
+    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = 0.8;
+    obj.emission[0] = obj.emission[1] = obj.emission[2] = 0;
+    obj.specular[0] = obj.specular[1] = obj.specular[2] = 0;
+    obj.texID = 0;
+    prism.objects.push_back(obj);
+    prism.calObjCenter();
+    prism.genDisplayList();
     return prism;
 }
 
@@ -199,11 +225,23 @@ model Sphere::createSphere(){
         sphere.faces.push_back(f);
     }
 
-    sphere.genDisplayList();
     sphere.entityAttr.push_back(r);
     sphere.entityAttr.push_back(density);
     sphere.max_X = sphere.max_Y = sphere.max_Z = r;
     sphere.min_X = sphere.min_Y = sphere.min_Z = -r;
+    object obj;
+    obj.vn_num = sphere.vnormals.size();
+    obj.vt_num = 0;
+    obj.v_num = sphere.vpoints.size();
+    obj.size = sphere.faces.size();
+    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = 0.2;
+    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = 0.8;
+    obj.emission[0] = obj.emission[1] = obj.emission[2] = 0;
+    obj.specular[0] = obj.specular[1] = obj.specular[2] = 0;
+    obj.texID = 0;
+    sphere.objects.push_back(obj);
+    sphere.calObjCenter();
+    sphere.genDisplayList();
     return sphere;
 }
 
@@ -258,7 +296,6 @@ model Cone::createCone(){
             cone.faces.push_back(f);
         }
     }
-    cone.genDisplayList();
     cone.entityAttr.push_back(r);
     cone.entityAttr.push_back(height);
     cone.entityAttr.push_back(faceNum);
@@ -266,5 +303,18 @@ model Cone::createCone(){
     cone.min_X = cone.min_Y = -r;
     cone.max_Z = height/2;
     cone.min_Z = -height/2;
+    object obj;
+    obj.vn_num = cone.vnormals.size();
+    obj.vt_num = 0;
+    obj.v_num = cone.vpoints.size();
+    obj.size = cone.faces.size();
+    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = 0.2;
+    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = 0.8;
+    obj.emission[0] = obj.emission[1] = obj.emission[2] = 0;
+    obj.specular[0] = obj.specular[1] = obj.specular[2] = 0;
+    obj.texID = 0;
+    cone.objects.push_back(obj);
+    cone.calObjCenter();
+    cone.genDisplayList();
     return cone;
 }
