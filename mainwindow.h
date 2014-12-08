@@ -94,6 +94,10 @@ private slots:
 
     void on_display_scale_z_valueChanged(double scale_z);
 
+    void on_actionOpen_Project_triggered();
+
+    void on_actionSave_Project_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

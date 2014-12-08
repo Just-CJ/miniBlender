@@ -115,6 +115,8 @@ class model{//基本对象
     //Added attribute to control reshape entity. ---Lkx
     entityType type;
     std::vector<float> entityAttr;
+    //Newly, if is a object, Attr is used as a file route. ---Lkx
+    QString file;
 
   private:
 

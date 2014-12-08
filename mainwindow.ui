@@ -105,7 +105,7 @@
      <attribute name="title">
       <string>Attribute</string>
      </attribute>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>50</x>
@@ -173,7 +173,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>51</x>
@@ -475,14 +475,13 @@
      <x>0</x>
      <y>0</y>
      <width>1283</width>
-     <height>27</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionCreate_Project"/>
     <addaction name="actionOpen_Project"/>
     <addaction name="actionSave_Project"/>
     <addaction name="separator"/>
@@ -524,7 +523,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionCreate_Project"/>
    <addaction name="actionOpen_Project"/>
    <addaction name="actionSave_Project"/>
    <addaction name="separator"/>
@@ -536,15 +534,6 @@
    <addaction name="actionDelete"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionCreate_Project">
-   <property name="icon">
-    <iconset resource="Icons.qrc">
-     <normaloff>:/new/prefix1/Icons/addProject.ico</normaloff>:/new/prefix1/Icons/addProject.ico</iconset>
-   </property>
-   <property name="text">
-    <string>Create Project</string>
-   </property>
-  </action>
   <action name="actionOpen_Project">
    <property name="icon">
     <iconset resource="Icons.qrc">
