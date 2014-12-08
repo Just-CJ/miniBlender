@@ -53,8 +53,10 @@ MainWindow::~MainWindow()
 void MainWindow::getSelectedItem()
 {
     int id = widget->selectedID-1;
-    if(id < 0)
+    if(id < 0){
+        curItem = NULL;
         return;
+    }
     for(unsigned int i = 0; i< objAttr.size(); i++){
         if(objAttr[i].modelIndex == id){
             QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(0);
@@ -67,8 +69,6 @@ void MainWindow::getSelectedItem()
             curItem = parent->child(i);
         }
     }
-//    qDebug()<<"curItem";
-//    qDebug()<<curItem->text(0);
 }
 
 void MainWindow::on_actionImport_OBJ_File_triggered()
@@ -492,6 +492,8 @@ void MainWindow::on_actionSelect_triggered()
 
 void MainWindow::on_actionDelete_triggered()
 {
+    if(curItem == NULL)
+        return;
     QTreeWidgetItem *parent = curItem->parent();
     if(parent == NULL)
         return;
@@ -612,6 +614,8 @@ void MainWindow::on_actionOpen_Project_triggered()
             loadOBJ(attrs.at(1).toStdString().c_str());
             widget->updateGL();
             emit objectSubmit(false);
+
+            models.back().file = attrs.at(1);
         }
         else{
             QStringList entityAttrs = attrs.at(1).split("%");
@@ -644,9 +648,11 @@ void MainWindow::on_actionOpen_Project_triggered()
                 C.type = CONE;
                 models.push_back(C);
             }
+            else{
+                return;
+            }
             emit objectSubmit(true);
         }
-        models.back().file = attrs.at(1);
         models.back().offset_x = attrs.at(2).toFloat();
         models.back().offset_y = attrs.at(3).toFloat();
         models.back().offset_z = attrs.at(4).toFloat();
