@@ -27,9 +27,9 @@ model::model(){
   offset_y = 0.0;
   offset_z = 0.0;
 
-  rotate_x = 0.0;
-  rotate_y = 0.0;
-  rotate_z = 0.0;
+  scale_x = 1.0;
+  scale_y = 1.0;
+  scale_z = 1.0;
 
   rotateMatrix[0]=1;rotateMatrix[1]=0;rotateMatrix[2]=0;rotateMatrix[3]=0;
   rotateMatrix[4]=0;rotateMatrix[5]=1;rotateMatrix[6]=0;rotateMatrix[7]=0;

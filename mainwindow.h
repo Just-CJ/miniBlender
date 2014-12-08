@@ -23,7 +23,7 @@ public:
 signals:
     void objectSubmit(bool EntityOrObject);
 
-    void sendSelectOBJ(int SelectID);
+    void sendSelectOBJ(unsigned int SelectID);
 
 private slots:
     void initSpinBoxAndSlider();
@@ -79,6 +79,20 @@ private slots:
     void on_actionSelect_triggered();
 
     void on_actionDelete_triggered();
+
+    void updateAttribute(unsigned int selectedID);
+
+    void on_display_x_valueChanged(double offset_x);
+
+    void on_display_y_valueChanged(double offset_y);
+
+    void on_display_z_valueChanged(double offset_z);
+
+    void on_display_scale_x_valueChanged(double scale_x);
+
+    void on_display_scale_y_valueChanged(double scale_y);
+
+    void on_display_scale_z_valueChanged(double scale_z);
 
 private:
     Ui::MainWindow *ui;
