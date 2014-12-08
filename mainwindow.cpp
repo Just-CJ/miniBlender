@@ -15,10 +15,9 @@ struct attribute{
     int modelIndex;
 };
 vector<attribute> objAttr;
-vector<attribute> entityAttr;
+vector<attribute> Attr;
+//用于TreeView右键菜单
 int indexCounter;
-
-//用于右键菜单
 QTreeWidgetItem* curItem;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -62,8 +61,8 @@ void MainWindow::getSelectedItem()
             curItem = parent->child(i);
         }
     }
-    for(unsigned int i = 0; i< entityAttr.size(); i++){
-        if(entityAttr[i].modelIndex == id){
+    for(unsigned int i = 0; i< Attr.size(); i++){
+        if(Attr[i].modelIndex == id){
             QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(1);
             curItem = parent->child(i);
         }
@@ -81,10 +80,11 @@ void MainWindow::on_actionImport_OBJ_File_triggered()
     if(fileName != ""){
       widget->initOBJ();
       loadOBJ(fileName.toStdString().c_str());
+      models.back().file = fileName;
       widget->updateGL();
 
       emit objectSubmit(false);
-      }
+    }
 }
 
 void MainWindow::on_actionWire_Solid_triggered()
@@ -257,11 +257,11 @@ void MainWindow::updateCatalog(bool EntityOrObject)
 {
     if(EntityOrObject == true){
         QTreeWidgetItem *topItem = ui->treeWidget->topLevelItem(1);
-        QString name = "entity" + QString::number(entityAttr.size()+1);
+        QString name = "entity" + QString::number(Attr.size()+1);
         attribute ent;
         ent.modelName = name;
         ent.modelIndex = indexCounter;
-        entityAttr.push_back(ent);
+        Attr.push_back(ent);
         QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
         topItem->addChild(newObj);
 
@@ -288,10 +288,10 @@ void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int colu
         return;
     int index = parent->indexOfChild(item);
     int currentModelID;
-    if(parent->text(0) == "Objects")
+    if(parent->text(column) == "Objects")
        currentModelID = objAttr[index].modelIndex;
     else
-       currentModelID = entityAttr[index].modelIndex;
+       currentModelID = Attr[index].modelIndex;
 //    qDebug()<<currentModelID;
 
     emit sendSelectOBJ(currentModelID + 1);
@@ -485,7 +485,7 @@ void MainWindow::on_actionSelect_triggered()
     if(parent->text(0) == "Objects")
        currentModelID = objAttr[index].modelIndex;
     else
-       currentModelID = entityAttr[index].modelIndex;
+       currentModelID = Attr[index].modelIndex;
 
     emit sendSelectOBJ(currentModelID + 1);
 }
@@ -500,7 +500,7 @@ void MainWindow::on_actionDelete_triggered()
     if(parent->text(0) == "Objects")
        currentModelID = objAttr[index].modelIndex;
     else
-       currentModelID = entityAttr[index].modelIndex;
+       currentModelID = Attr[index].modelIndex;
 
     vector<model>::iterator it = models.begin() + currentModelID;
     for(unsigned int i=0; i<models[currentModelID].mtls.size(); i++){ //删除绑定纹理
@@ -513,14 +513,13 @@ void MainWindow::on_actionDelete_triggered()
 
     indexCounter--;
 
-    if(parent->text(0) == "Objects") //删除objAttr和entityAttr里对应的项
+    if(parent->text(0) == "Objects") //删除objAttr和Attr里对应的项
        objAttr.erase(objAttr.begin()+index);
     else
-       entityAttr.erase(entityAttr.begin()+index);
+       Attr.erase(Attr.begin()+index);
 
     delete curItem;
 }
-
 
 void MainWindow::updateAttribute(unsigned int selectedID){
   disconnect(ui->display_scale_x, SIGNAL(valueChanged(double)), this, SLOT(on_display_scale_x_valueChanged(double)));
@@ -591,4 +590,106 @@ void MainWindow::on_display_scale_z_valueChanged(double scale_z)
   if(widget->selectedID){
       models[widget->selectedID-1].scale_z = scale_z;
     }
+}
+
+void MainWindow::on_actionOpen_Project_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                    tr("open file"),
+                                                    "E:/Study/ComputerGraphics/qtopengl/project",
+                                                    tr("OBJ file(*.prj)"));
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    QTextStream proLog(&file);
+    QString line;
+    while(!proLog.atEnd()){
+        line = proLog.readLine();
+        QStringList attrs = line.split("#");
+        if(attrs.at(0) == "OBJ"){
+            widget->initOBJ();
+            loadOBJ(attrs.at(1).toStdString().c_str());
+            widget->updateGL();
+            emit objectSubmit(false);
+        }
+        else{
+            QStringList entityAttrs = attrs.at(1).split("%");
+            if(attrs.at(0).toInt() == CUBE){
+                model Cube = createCube(entityAttrs.at(0).toFloat());
+                Cube.type = CUBE;
+                models.push_back(Cube);
+            }
+            else if(attrs.at(0).toInt() == PRISMOID){
+                Prismoid prismoid(entityAttrs.at(0).toFloat(), entityAttrs.at(1).toFloat(), entityAttrs.at(2).toFloat(), entityAttrs.at(3).toFloat());
+                model P = prismoid.createPrismoid();
+                P.type = PRISMOID;
+                models.push_back(P);
+            }
+            else if(attrs.at(0).toInt() == SPHERE){
+                Sphere sphere(entityAttrs.at(0).toFloat(), entityAttrs.at(1).toFloat());
+                model s = sphere.createSphere();
+                s.type = SPHERE;
+                models.push_back(s);
+            }
+            else if(attrs.at(0).toInt() == CYLINDER){
+                Prismoid prismoid_c(entityAttrs.at(0).toFloat(), entityAttrs.at(1).toFloat(), entityAttrs.at(2).toFloat(), entityAttrs.at(3).toFloat());
+                model P_c = prismoid_c.createPrismoid();
+                P_c.type = CYLINDER;
+                models.push_back(P_c);
+            }
+            else if(attrs.at(0).toInt() == CONE){
+                Cone cone(entityAttrs.at(0).toFloat(), entityAttrs.at(1).toFloat(), entityAttrs.at(2).toFloat());
+                model C = cone.createCone();
+                C.type = CONE;
+                models.push_back(C);
+            }
+            emit objectSubmit(true);
+        }
+        models.back().file = attrs.at(1);
+        models.back().offset_x = attrs.at(2).toFloat();
+        models.back().offset_y = attrs.at(3).toFloat();
+        models.back().offset_z = attrs.at(4).toFloat();
+        models.back().scale_x = attrs.at(5).toFloat();
+        models.back().scale_y = attrs.at(6).toFloat();
+        models.back().scale_z = attrs.at(7).toFloat();
+        for(int i = 0; i< 16; i++){
+            models.back().rotateMatrix[i] = attrs.at(i + 8).toFloat();
+        }
+    }
+    file.close();
+}
+
+void MainWindow::on_actionSave_Project_triggered()
+{
+    QString projectLog = "";
+    for(unsigned int i = 0; i< models.size(); i++){
+        if(models[i].type == NOT){
+            projectLog += "OBJ#" + models[i].file + "#";
+        }
+        else{
+            projectLog += QString::number(models[i].type) + "#";
+            for(unsigned int j = 0; j< models[j].entityAttr.size(); j++){
+                projectLog += (QString::number(models[i].entityAttr[j]) + "%");
+            }
+            projectLog += "#";
+        }
+        projectLog = projectLog + QString::number(models[i].offset_x) + "#" + QString::number(models[i].offset_y) + "#" + QString::number(models[i].offset_z) + "#"
+                + QString::number(models[i].scale_x) + "#" + QString::number(models[i].scale_y) + "#" + QString::number(models[i].scale_z);
+        for(int j = 0; j< 16; j++){
+            projectLog += ("#" + QString::number(models[i].rotateMatrix[j]));
+        }
+        projectLog += "\n";
+    }
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("save file"),
+                                                    "E:/Study/ComputerGraphics/qtopengl/OBJ/project",
+                                                    tr("Project file(*.prj)"));
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    QTextStream out(&file);
+    out << projectLog;
+    file.close();
 }
