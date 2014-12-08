@@ -494,7 +494,7 @@ void MainWindow::on_actionSelect_triggered()
 
 void MainWindow::on_actionDelete_triggered()
 {
-    if(curItem == NULL)
+    if(curItem == NULL || widget->selectedID == 0)
         return;
     QTreeWidgetItem *parent = curItem->parent();
     if(parent == NULL)
