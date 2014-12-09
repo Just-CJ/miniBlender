@@ -390,7 +390,7 @@ void GLWidget::timerEvent(QTimerEvent *)
 
 void GLWidget::setLight(){
   glShadeModel(GL_SMOOTH);
-  if(!enableLight || !lightnumber)
+  if(!enableLight)
       glDisable(GL_LIGHTING);
   else
       glEnable(GL_LIGHTING);
@@ -398,11 +398,10 @@ void GLWidget::setLight(){
   if(addLight==true && lights[i].isOn==false){
   addLight=false;
   lights[i].isOn=true;
-  }/*
+  }
   if(!lights[i].isOn){
       switch(i){
       case 0:{
-              //glEnable(GL_LIGHT0);
               glDisable(GL_LIGHT0);
           break;}
       case 1:{
@@ -427,7 +426,7 @@ void GLWidget::setLight(){
           glDisable(GL_LIGHT7);
           }
       }
-  }*/
+  }
   if(lights[i].isOn){
   switch(i+1){
   case 1:{

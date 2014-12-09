@@ -99,7 +99,7 @@
      </size>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab_4">
      <attribute name="title">
@@ -311,8 +311,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>311</width>
-         <height>193</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <attribute name="label">
@@ -473,32 +473,6 @@
      <attribute name="title">
       <string>材质纹理</string>
      </attribute>
-     <widget class="QLabel" name="label_14">
-      <property name="geometry">
-       <rect>
-        <x>16</x>
-        <y>205</y>
-        <width>54</width>
-        <height>12</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>texture</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="geometry">
-       <rect>
-        <x>71</x>
-        <y>200</y>
-        <width>75</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>自定义</string>
-      </property>
-     </widget>
      <widget class="QWidget" name="horizontalLayoutWidget">
       <property name="geometry">
        <rect>
@@ -517,13 +491,34 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="ambient1"/>
+        <widget class="QDoubleSpinBox" name="ambient1">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="ambient2"/>
+        <widget class="QDoubleSpinBox" name="ambient2">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="ambient3"/>
+        <widget class="QDoubleSpinBox" name="ambient3">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -545,13 +540,34 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="diffuse1"/>
+        <widget class="QDoubleSpinBox" name="diffuse1">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="diffuse2"/>
+        <widget class="QDoubleSpinBox" name="diffuse2">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="diffuse3"/>
+        <widget class="QDoubleSpinBox" name="diffuse3">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -573,13 +589,34 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="specular1"/>
+        <widget class="QDoubleSpinBox" name="specular1">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="specular2"/>
+        <widget class="QDoubleSpinBox" name="specular2">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="specular3"/>
+        <widget class="QDoubleSpinBox" name="specular3">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -601,13 +638,60 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="emission1"/>
+        <widget class="QDoubleSpinBox" name="emission1">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="emission2"/>
+        <widget class="QDoubleSpinBox" name="emission2">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="emission3"/>
+        <widget class="QDoubleSpinBox" name="emission3">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>198</y>
+        <width>281</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>texture</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>自定义</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -634,13 +718,34 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="lambient1"/>
+        <widget class="QDoubleSpinBox" name="lambient1">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="lambient2"/>
+        <widget class="QDoubleSpinBox" name="lambient2">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="lambient3"/>
+        <widget class="QDoubleSpinBox" name="lambient3">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -662,13 +767,34 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="ldiffuse1"/>
+        <widget class="QDoubleSpinBox" name="ldiffuse1">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="ldiffuse2"/>
+        <widget class="QDoubleSpinBox" name="ldiffuse2">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="ldiffuse3"/>
+        <widget class="QDoubleSpinBox" name="ldiffuse3">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -690,13 +816,34 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="lspecular1"/>
+        <widget class="QDoubleSpinBox" name="lspecular1">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="lspecular2"/>
+        <widget class="QDoubleSpinBox" name="lspecular2">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="lspecular3"/>
+        <widget class="QDoubleSpinBox" name="lspecular3">
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -718,13 +865,34 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="lposition1"/>
+        <widget class="QDoubleSpinBox" name="lposition1">
+         <property name="minimum">
+          <double>-1000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>1000.000000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="lposition2"/>
+        <widget class="QDoubleSpinBox" name="lposition2">
+         <property name="minimum">
+          <double>-1000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>1000.000000000000000</double>
+         </property>
+        </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="lposition3"/>
+        <widget class="QDoubleSpinBox" name="lposition3">
+         <property name="minimum">
+          <double>-1000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>1000.000000000000000</double>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -746,7 +914,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="intensity"/>
+        <widget class="QDoubleSpinBox" name="intensity">
+         <property name="minimum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>10.000000000000000</double>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -821,6 +996,7 @@
     <property name="title">
      <string>Control</string>
     </property>
+    <addaction name="actionLight_on_off"/>
     <addaction name="actionAdd_light"/>
     <addaction name="actionWire_Solid"/>
     <addaction name="separator"/>
@@ -844,6 +1020,7 @@
    <addaction name="actionExport_OBJ_File"/>
    <addaction name="separator"/>
    <addaction name="actionAdd_light"/>
+   <addaction name="actionLight_on_off"/>
    <addaction name="actionWire_Solid"/>
    <addaction name="actionDelete"/>
   </widget>
@@ -954,6 +1131,15 @@
    </property>
    <property name="text">
     <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionLight_on_off">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/lightOn.ico</normaloff>:/new/prefix1/Icons/lightOn.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Light on/off</string>
    </property>
   </action>
  </widget>

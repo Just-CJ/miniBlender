@@ -297,7 +297,7 @@ model Sphere::createSphere(){
     obj.texID = Tmtl.texID = 0;
 
     sphere.objects.push_back(obj);
-    sphere.objects.push_back(Tmtl);
+    sphere.mtls.push_back(Tmtl);
     sphere.calObjCenter();
     sphere.genDisplayList();
     return sphere;

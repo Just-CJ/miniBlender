@@ -19,7 +19,6 @@ vector<attribute> objAttr;
 vector<attribute> entityAttr;
 //用于TreeView右键菜单
 int indexCounter;
-int lightCounter;
 QTreeWidgetItem* curItem;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -100,15 +99,13 @@ void MainWindow::on_actionAdd_light_triggered()
 {
      int i;
      for(i=0;i<8;i++) if(!widget->lights[i].isOn) break;
-     if(widget->enableLight==false) widget->enableLight=true;
      widget->addLight=true;
      widget->lightnumber++;
      QTreeWidgetItem *topItem = ui->treeWidget->topLevelItem(2);
      QString name = "light" + QString::number(widget->lightnumber);
      QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
      topItem->addChild(newObj);
-     lightIDs[lightCounter]=i;
-     lightCounter++;
+     lightIDs[widget->lightnumber-1]=i;
 }
 
 void MainWindow::on_actionWire_Solid_triggered()
@@ -308,11 +305,18 @@ void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int colu
     if(parent->text(column) == "Entities")
        currentModelID = entityAttr[index].modelIndex;
     if(parent->text(column) == "Lights"){
-       if(selectedLight==false){
        selectedLID=lightIDs[index];
        selectedLight=true;
-       }
-       else selectedLight=false;
+       QString qs="*"+item->text(0);
+       item->setText(0,qs);
+       for(int i=0;i<parent->childCount();i++)
+           if(i!=selectedLID && parent->child(i)->text(0)[0]=='*'){
+               qs="";
+               int l=parent->child(i)->text(0).length();
+               for(int j=1;j<l;j++)
+                   qs+=parent->child(i)->text(0)[j];
+               parent->child(i)->setText(0,qs);
+           }
     }
     else
 //    qDebug()<<currentModelID;
@@ -511,9 +515,18 @@ void MainWindow::on_actionSelect_triggered()
     if(parent->text(0) == "Entities")
        currentModelID = entityAttr[index].modelIndex;
     if(parent->text(0) == "Lights"){
-       qDebug()<<index<<" "<<lightIDs[index];
        selectedLID=lightIDs[index];
        selectedLight=true;
+       QString qs="*"+curItem->text(0);
+       curItem->setText(0,qs);
+       for(int i=0;i<parent->childCount();i++)
+           if(i!=selectedLID && parent->child(i)->text(0)[0]=='*'){
+               qs="";
+               int l=parent->child(i)->text(0).length();
+               for(int j=1;j<l;j++)
+                   qs+=parent->child(i)->text(0)[j];
+               parent->child(i)->setText(0,qs);
+           }
     }
     else {
         emit sendSelectOBJ(currentModelID + 1);
@@ -535,8 +548,11 @@ void MainWindow::on_actionDelete_triggered()
        currentModelID = entityAttr[index].modelIndex;
     if(parent->text(0) == "Lights"){
        widget->lights[lightIDs[index]].isOn=false;
+       for(int i=0;i<8;i++)
+       qDebug()<<widget->lights[i].isOn;
        widget->lightnumber--;
        delete curItem;
+       if(selectedLight && lightIDs[index]==selectedLID)
        selectedLight=false;
        return;
     }
@@ -754,7 +770,7 @@ void MainWindow::on_actionSave_Project_triggered()
 
 void MainWindow::on_tabWidget_tabBarClicked(int index)
 {
-    if(index==3){
+    if(index==2){
         int id=widget->selectedID-1;
         if(id>=0){
             vector<object>::iterator it=models[id].objects.begin();
@@ -786,7 +802,7 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
             ui->emission3->setValue(0);
         }
     }
-    if(index==4){
+    if(index==3){
         if(selectedLight){
             int i=selectedLID;
             light l=widget->lights[i];
@@ -827,8 +843,11 @@ void MainWindow::on_ambient1_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).ambient[0]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).ambient[0]=(*it).ambient[0]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -838,8 +857,11 @@ void MainWindow::on_ambient2_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).ambient[1]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).ambient[1]=(*it).ambient[1]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -849,9 +871,12 @@ void MainWindow::on_ambient3_valueChanged(double arg1)
 {
     int id=widget->selectedID-1;
     if(id>=0){
-        vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).ambient[2]=arg1;
+        vector<object>::iterator it;\
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).ambient[2]=(*it).ambient[2]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -862,8 +887,11 @@ void MainWindow::on_diffuse1_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).diffuse[0]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).diffuse[0]=(*it).diffuse[0]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -873,8 +901,11 @@ void MainWindow::on_diffuse2_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).diffuse[1]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).diffuse[1]=(*it).diffuse[1]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -884,8 +915,11 @@ void MainWindow::on_diffuse3_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).diffuse[2]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).diffuse[2]=(*it).diffuse[2]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -895,8 +929,11 @@ void MainWindow::on_specular1_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).specular[0]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).specular[0]=(*it).specular[0]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -906,8 +943,11 @@ void MainWindow::on_specular2_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).specular[1]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).specular[1]=(*it).specular[1]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -917,8 +957,11 @@ void MainWindow::on_specular3_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-           (*it).specular[2]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+           (*itm).specular[2]=(*it).specular[2]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -928,8 +971,11 @@ void MainWindow::on_emission1_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).emission[0]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).emission[0]=(*it).emission[0]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -939,8 +985,11 @@ void MainWindow::on_emission2_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).emission[1]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).emission[1]=(*it).emission[1]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -950,8 +999,11 @@ void MainWindow::on_emission3_valueChanged(double arg1)
     int id=widget->selectedID-1;
     if(id>=0){
         vector<object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).emission[2]=arg1;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).emission[2]=(*it).emission[2]=arg1;
+            itm++;
+        }
         models[id].genDisplayList();
     }
 }
@@ -973,8 +1025,14 @@ void MainWindow::on_pushButton_2_clicked()
     int id=widget->selectedID-1;
     if(id>=0){
         vector <object>::iterator it;
-        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
-            (*it).texID=texture[i];
+        vector <mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).texID=(*it).texID=texture[i];
+            QString qs="texture"+QString::number(i+1);
+            (*itm).mtlname=(*it).mtlname="texture";
+            (*itm).map_Kd_addr=(*it).map_Kd_addr=fileName;
+            itm++;
+        }
         models[id].genDisplayList();
     }
     textureNumber++;
@@ -1059,3 +1117,11 @@ void MainWindow::on_intensity_valueChanged(double arg1)
 }
 
 
+
+void MainWindow::on_actionLight_on_off_triggered()
+{
+    if(widget->enableLight)
+        widget->enableLight=false;
+    else
+        widget->enableLight=true;
+}
