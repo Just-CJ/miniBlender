@@ -10,5 +10,12 @@
         <file>Icons/Fresh.ico</file>
         <file>Icons/delete.ico</file>
         <file>Icons/addLight.png</file>
+        <file>Icons/cone.ico</file>
+        <file>Icons/copy.ico</file>
+        <file>Icons/cube.ico</file>
+        <file>Icons/cylinder.ico</file>
+        <file>Icons/paste.ico</file>
+        <file>Icons/prism.ico</file>
+        <file>Icons/sphere.ico</file>
     </qresource>
 </RCC>

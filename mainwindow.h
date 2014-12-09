@@ -172,6 +172,10 @@ private slots:
 
     void on_actionRename_triggered();
 
+    void on_actionCopy_triggered();
+
+    void on_actionPaste_triggered();
+
 private:
     void unselectLights();
 

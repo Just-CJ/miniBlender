@@ -10,6 +10,11 @@
 
 using namespace std;
 extern vector<model> models;
+struct Clip{
+    model mod;
+    bool valid;
+}Clipboard;
+
 int lightIDs[100];
 struct attribute{
     QString modelName;
@@ -38,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
     indexCounter = 0;
 
     rmDialog = new renameDialog();
+
+    Clipboard.valid = false;
 
     textureNumber=0;
     selectedLight=false;
@@ -558,6 +565,11 @@ void MainWindow::on_treeWidget_customContextMenuRequested(const QPoint &pos)
     popMenu->addAction(ui->actionSelect);
     popMenu->addAction(ui->actionDelete);
     popMenu->addAction(ui->actionRename);
+    if(curItem->parent()->text(0) != "Lights" ){
+        popMenu->addSeparator();
+        popMenu->addAction(ui->actionCopy);
+        popMenu->addAction(ui->actionPaste);
+    }
     popMenu->exec(QCursor::pos());
 }
 
@@ -1196,4 +1208,24 @@ void MainWindow::on_actionRename_triggered()
 void MainWindow::renameOBJ(QString newName)
 {
     curItem->setText(0, newName);
+}
+
+void MainWindow::on_actionCopy_triggered()
+{
+    if(widget->selectedID == 0)
+        return;
+    Clipboard.mod = models[widget->selectedID-1];
+    Clipboard.mod.isSelected = false;
+    Clipboard.valid = true;
+}
+
+void MainWindow::on_actionPaste_triggered()
+{
+    if(!Clipboard.valid)
+        return;
+    models.push_back(Clipboard.mod);
+    if(Clipboard.mod.type == NOT)
+        emit objectSubmit(false);
+    else
+        emit objectSubmit(true);
 }

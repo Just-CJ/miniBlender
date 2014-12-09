@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1283</width>
-    <height>781</height>
+    <height>761</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -48,7 +48,7 @@
       <x>2</x>
       <y>2</y>
       <width>911</width>
-      <height>650</height>
+      <height>681</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -122,8 +122,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>311</width>
+         <height>193</height>
         </rect>
        </property>
        <attribute name="label">
@@ -230,8 +230,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -311,8 +311,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -1001,6 +1001,9 @@
     <addaction name="actionWire_Solid"/>
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEnity"/>
@@ -1023,6 +1026,9 @@
    <addaction name="actionLight_on_off"/>
    <addaction name="actionWire_Solid"/>
    <addaction name="actionDelete"/>
+   <addaction name="actionCopy"/>
+   <addaction name="actionPaste"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen_Project">
@@ -1067,6 +1073,10 @@
    </property>
   </action>
   <action name="actionAdd_cube">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/cube.ico</normaloff>:/new/prefix1/Icons/cube.ico</iconset>
+   </property>
    <property name="text">
     <string>Add cube</string>
    </property>
@@ -1090,16 +1100,28 @@
    </property>
   </action>
   <action name="actionAdd_prism">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/prism.ico</normaloff>:/new/prefix1/Icons/prism.ico</iconset>
+   </property>
    <property name="text">
     <string>Add prism</string>
    </property>
   </action>
   <action name="actionAdd_prismoid">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/prism.ico</normaloff>:/new/prefix1/Icons/prism.ico</iconset>
+   </property>
    <property name="text">
     <string>Add prismoid</string>
    </property>
   </action>
   <action name="actionAdd_sphere">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/sphere.ico</normaloff>:/new/prefix1/Icons/sphere.ico</iconset>
+   </property>
    <property name="text">
     <string>Add sphere</string>
    </property>
@@ -1110,11 +1132,19 @@
    </property>
   </action>
   <action name="actionAdd_cylinder">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/cylinder.ico</normaloff>:/new/prefix1/Icons/cylinder.ico</iconset>
+   </property>
    <property name="text">
     <string>Add cylinder</string>
    </property>
   </action>
   <action name="actionAdd_cone">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/cone.ico</normaloff>:/new/prefix1/Icons/cone.ico</iconset>
+   </property>
    <property name="text">
     <string>Add cone</string>
    </property>
@@ -1145,6 +1175,24 @@
   <action name="actionRename">
    <property name="text">
     <string>Rename</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/copy.ico</normaloff>:/new/prefix1/Icons/copy.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset resource="Icons.qrc">
+     <normaloff>:/new/prefix1/Icons/paste.ico</normaloff>:/new/prefix1/Icons/paste.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Paste</string>
    </property>
   </action>
  </widget>
