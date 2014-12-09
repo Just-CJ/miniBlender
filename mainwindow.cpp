@@ -495,6 +495,8 @@ void MainWindow::on_treeWidget_customContextMenuRequested(const QPoint &pos)
     popMenu->addAction(ui->actionSelect);
     popMenu->addAction(ui->actionDelete);
     popMenu->exec(QCursor::pos());
+    //选中当前物体
+    on_treeWidget_itemDoubleClicked(curItem,0);
 }
 
 void MainWindow::on_actionSelect_triggered()
@@ -522,8 +524,6 @@ void MainWindow::on_actionDelete_triggered()
 {
     if(curItem == NULL)
         return;
-    //选中当前物体
-    on_treeWidget_itemDoubleClicked(curItem,0);
     QTreeWidgetItem *parent = curItem->parent();
     if(parent == NULL)
         return;
