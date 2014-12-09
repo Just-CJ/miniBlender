@@ -5,11 +5,13 @@
 #-------------------------------------------------
 
 QT       += core gui
-QT       += opengl
+QT       += opengl 
 
 
-LIBS += -lglew32
-LIBS += -lfreeglut
+LIBS += -lglut32
+LIBS += -LC:\glut
+#LIBS += -lglew32
+LIBS += -lfreeglut 
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

@@ -258,7 +258,6 @@ model Sphere::createSphere(){
             vt.u = (float)i/(float)density;
             vt.v = (float)j/(float)density;
             sphere.vtexs.push_back(vt);
-            qDebug()<< vt.u<<" "<<vt.v<<" when i,j ="<<i<<" "<<j;
 
             vp.values(x, y, z);
             sphere.vpoints.push_back(vp);

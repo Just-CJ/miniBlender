@@ -10,6 +10,7 @@
 
 using namespace std;
 extern vector<model> models;
+int lightIDs[100];
 struct attribute{
     QString modelName;
     int modelIndex;
@@ -18,6 +19,7 @@ vector<attribute> objAttr;
 vector<attribute> entityAttr;
 //用于TreeView右键菜单
 int indexCounter;
+int lightCounter;
 QTreeWidgetItem* curItem;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -35,6 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->verticalLayout_4->addWidget(attr);
     initialCatalog();
     indexCounter = 0;
+
+    textureNumber=0;
+    selectedLight=false;
 
     connect(widget, SIGNAL(model_select()), this, SLOT(initSpinBoxAndSlider()));
     connect(widget, SIGNAL(model_select()), this, SLOT(selectedAttribute()));
@@ -89,6 +94,23 @@ void MainWindow::on_actionImport_OBJ_File_triggered()
     }
 }
 
+
+
+void MainWindow::on_actionAdd_light_triggered()
+{
+     int i;
+     for(i=0;i<8;i++) if(!widget->lights[i].isOn) break;
+     if(widget->enableLight==false) widget->enableLight=true;
+     widget->addLight=true;
+     widget->lightnumber++;
+     QTreeWidgetItem *topItem = ui->treeWidget->topLevelItem(2);
+     QString name = "light" + QString::number(widget->lightnumber);
+     QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
+     topItem->addChild(newObj);
+     lightIDs[lightCounter]=i;
+     lightCounter++;
+}
+
 void MainWindow::on_actionWire_Solid_triggered()
 {
     if(widget->isWireframe){
@@ -96,17 +118,7 @@ void MainWindow::on_actionWire_Solid_triggered()
       }
     else{
         widget->isWireframe = true;
-      }
-}
-
-void MainWindow::on_actionLight_On_Off_triggered()
-{
-    if(widget->enableLight){
-        widget->enableLight = false;
-      }
-    else{
-        widget->enableLight = true;
-      }
+    }
 }
 
 void MainWindow::initSpinBoxAndSlider()
@@ -253,6 +265,8 @@ void MainWindow::initialCatalog()
     ui->treeWidget->addTopLevelItem(Objects);
     QTreeWidgetItem *Entities = new QTreeWidgetItem(QStringList()<<"Entities");
     ui->treeWidget->addTopLevelItem(Entities);
+    QTreeWidgetItem *Lights = new QTreeWidgetItem(QStringList()<<"Lights");
+    ui->treeWidget->addTopLevelItem(Lights);
 }
 
 void MainWindow::updateCatalog(bool EntityOrObject)
@@ -266,7 +280,6 @@ void MainWindow::updateCatalog(bool EntityOrObject)
         entityAttr.push_back(ent);
         QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
         topItem->addChild(newObj);
-
         indexCounter++;
     }
     else{
@@ -292,10 +305,17 @@ void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int colu
     int currentModelID;
     if(parent->text(column) == "Objects")
        currentModelID = objAttr[index].modelIndex;
-    else
+    if(parent->text(column) == "Entities")
        currentModelID = entityAttr[index].modelIndex;
+    if(parent->text(column) == "Lights"){
+       if(selectedLight==false){
+       selectedLID=lightIDs[index];
+       selectedLight=true;
+       }
+       else selectedLight=false;
+    }
+    else
 //    qDebug()<<currentModelID;
-
     emit sendSelectOBJ(currentModelID + 1);
 }
 
@@ -486,16 +506,24 @@ void MainWindow::on_actionSelect_triggered()
     int currentModelID;
     if(parent->text(0) == "Objects")
        currentModelID = objAttr[index].modelIndex;
-    else
+    if(parent->text(0) == "Entities")
        currentModelID = entityAttr[index].modelIndex;
-
-    emit sendSelectOBJ(currentModelID + 1);
+    if(parent->text(0) == "Lights"){
+       qDebug()<<index<<" "<<lightIDs[index];
+       selectedLID=lightIDs[index];
+       selectedLight=true;
+    }
+    else {
+        emit sendSelectOBJ(currentModelID + 1);
+    }
 }
 
 void MainWindow::on_actionDelete_triggered()
 {
-    if(curItem == NULL || widget->selectedID == 0)
+    if(curItem == NULL)
         return;
+    //选中当前物体
+    on_treeWidget_itemDoubleClicked(curItem,0);
     QTreeWidgetItem *parent = curItem->parent();
     if(parent == NULL)
         return;
@@ -503,8 +531,16 @@ void MainWindow::on_actionDelete_triggered()
     int currentModelID;
     if(parent->text(0) == "Objects")
        currentModelID = objAttr[index].modelIndex;
-    else
+    if(parent->text(0) == "Entities")
        currentModelID = entityAttr[index].modelIndex;
+    if(parent->text(0) == "Lights"){
+       widget->lights[lightIDs[index]].isOn=false;
+       widget->lightnumber--;
+       delete curItem;
+       selectedLight=false;
+       return;
+    }
+    //qDebug()<<widget->selectedID<<" "<<curItem->text(0)<<" "<<currentModelID;
 
     vector<model>::iterator it = models.begin() + currentModelID;
     for(unsigned int i=0; i<models[currentModelID].mtls.size(); i++){ //删除绑定纹理
@@ -519,7 +555,7 @@ void MainWindow::on_actionDelete_triggered()
 
     if(parent->text(0) == "Objects") //删除objAttr和entityAttr里对应的项
        objAttr.erase(objAttr.begin()+index);
-    else
+    if(parent->text(0) == "Entities")
        entityAttr.erase(entityAttr.begin()+index);
 
     delete curItem;
@@ -536,6 +572,7 @@ void MainWindow::on_actionDelete_triggered()
     }
 
     widget->selectedID = 0;
+    curItem = NULL;
 }
 
 void MainWindow::updateAttribute(unsigned int selectedID){
@@ -714,3 +751,311 @@ void MainWindow::on_actionSave_Project_triggered()
     out << projectLog;
     file.close();
 }
+
+void MainWindow::on_tabWidget_tabBarClicked(int index)
+{
+    if(index==3){
+        int id=widget->selectedID-1;
+        if(id>=0){
+            vector<object>::iterator it=models[id].objects.begin();
+            ui->ambient1->setValue((*it).ambient[0]);
+            ui->ambient2->setValue((*it).ambient[1]);
+            ui->ambient3->setValue((*it).ambient[2]);
+            ui->diffuse1->setValue((*it).diffuse[0]);
+            ui->diffuse2->setValue((*it).diffuse[1]);
+            ui->diffuse3->setValue((*it).diffuse[2]);
+            ui->specular1->setValue((*it).specular[0]);
+            ui->specular2->setValue((*it).specular[1]);
+            ui->specular3->setValue((*it).specular[2]);
+            ui->emission1->setValue((*it).emission[0]);
+            ui->emission2->setValue((*it).emission[1]);
+            ui->emission3->setValue((*it).emission[2]);
+        }
+        else{
+            ui->ambient1->setValue(0);
+            ui->ambient2->setValue(0);
+            ui->ambient3->setValue(0);
+            ui->diffuse1->setValue(0);
+            ui->diffuse2->setValue(0);
+            ui->diffuse3->setValue(0);
+            ui->specular1->setValue(0);
+            ui->specular2->setValue(0);
+            ui->specular3->setValue(0);
+            ui->emission1->setValue(0);
+            ui->emission2->setValue(0);
+            ui->emission3->setValue(0);
+        }
+    }
+    if(index==4){
+        if(selectedLight){
+            int i=selectedLID;
+            light l=widget->lights[i];
+            ui->lambient1->setValue(l.light_ambient[0]);
+            ui->lambient2->setValue(l.light_ambient[1]);
+            ui->lambient3->setValue(l.light_ambient[2]);
+            ui->ldiffuse1->setValue(l.light_diffuse[0]);
+            ui->ldiffuse2->setValue(l.light_diffuse[1]);
+            ui->ldiffuse3->setValue(l.light_diffuse[2]);
+            ui->lspecular1->setValue(l.light_specular[0]);
+            ui->lspecular2->setValue(l.light_specular[1]);
+            ui->lspecular3->setValue(l.light_specular[2]);
+            ui->lposition1->setValue(l.light_position[0]);
+            ui->lposition2->setValue(l.light_position[1]);
+            ui->lposition3->setValue(l.light_position[2]);
+            ui->intensity->setValue(l.intensity);
+       }
+       else{
+            ui->lambient1->setValue(0);
+            ui->lambient2->setValue(0);
+            ui->lambient3->setValue(0);
+            ui->ldiffuse1->setValue(0);
+            ui->ldiffuse2->setValue(0);
+            ui->ldiffuse3->setValue(0);
+            ui->lspecular1->setValue(0);
+            ui->lspecular2->setValue(0);
+            ui->lspecular3->setValue(0);
+            ui->lposition1->setValue(0);
+            ui->lposition2->setValue(0);
+            ui->lposition3->setValue(0);
+            ui->intensity->setValue(0);
+       }
+    }
+}
+
+void MainWindow::on_ambient1_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).ambient[0]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_ambient2_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).ambient[1]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+
+void MainWindow::on_ambient3_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).ambient[2]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+
+void MainWindow::on_diffuse1_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).diffuse[0]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_diffuse2_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).diffuse[1]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_diffuse3_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).diffuse[2]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_specular1_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).specular[0]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_specular2_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).specular[1]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_specular3_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+           (*it).specular[2]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_emission1_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).emission[0]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_emission2_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).emission[1]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_emission3_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).emission[2]=arg1;
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,tr("open file"),"E:/Images",tr("BMP file(*.bmp)"));
+    QImage tex, buf;
+    if(!buf.load(fileName)){
+        return;
+    }
+    tex = widget->convertToGLFormat(buf);
+    int i=textureNumber;
+    glGenTextures(1,&texture[0]);
+    glBindTexture(GL_TEXTURE_2D, texture[i]);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, tex.width(), tex.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.bits());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理小时，采用GL_LINEAR的方法来处理
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理大时，采用GL_LINEAR的方法来处理
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector <object>::iterator it;
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++)
+            (*it).texID=texture[i];
+        models[id].genDisplayList();
+    }
+    textureNumber++;
+}
+
+void MainWindow::on_lambient1_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_ambient[0]=arg1;
+}
+
+void MainWindow::on_lambient2_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_ambient[1]=arg1;
+}
+
+void MainWindow::on_lambient3_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_ambient[2]=arg1;
+}
+
+void MainWindow::on_ldiffuse1_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_diffuse[0]=arg1;
+}
+
+void MainWindow::on_ldiffuse2_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_diffuse[1]=arg1;
+}
+
+void MainWindow::on_ldiffuse3_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_diffuse[2]=arg1;
+}
+
+void MainWindow::on_lspecular1_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_specular[0]=arg1;
+}
+
+void MainWindow::on_lspecular2_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_specular[1]=arg1;
+}
+
+void MainWindow::on_lspecular3_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_specular[2]=arg1;
+}
+
+void MainWindow::on_lposition1_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_position[0]=arg1;
+}
+
+void MainWindow::on_lposition2_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_position[1]=arg1;
+}
+
+void MainWindow::on_lposition3_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_position[2]=arg1;
+}
+
+void MainWindow::on_intensity_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].intensity=arg1;
+}
+
+

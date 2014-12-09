@@ -37,6 +37,9 @@ GLWidget::GLWidget(QGLWidget *parent) :
     ui->setupUi(this);
     fullscreen = false;
 
+    addLight=false;
+    lightnumber=0;
+
     startTimer(10);//开启10ms定时器
 
     /*初始化成员*/
@@ -385,19 +388,116 @@ void GLWidget::timerEvent(QTimerEvent *)
     updateGL();
 }
 
-
 void GLWidget::setLight(){
-  GLfloat light_position[] = {10.0, 10.0f, 10.0f, 0.0}; //设置光源
-  GLfloat lmodel_ambient[] = {1.0, 1.0, 1.0, 1.0};
   glShadeModel(GL_SMOOTH);
+  if(!enableLight || !lightnumber)
+      glDisable(GL_LIGHTING);
+  else
+      glEnable(GL_LIGHTING);
+  for(int i=0;i<8;i++){
+  if(addLight==true && lights[i].isOn==false){
+  addLight=false;
+  lights[i].isOn=true;
+  }/*
+  if(!lights[i].isOn){
+      switch(i){
+      case 0:{
+              //glEnable(GL_LIGHT0);
+              glDisable(GL_LIGHT0);
+          break;}
+      case 1:{
+              glDisable(GL_LIGHT1);
+          break;}
+      case 2:{
+              glDisable(GL_LIGHT2);
+          break;}
+      case 3:{
+          glDisable(GL_LIGHT3);
+          break;}
+      case 4:{
+          glDisable(GL_LIGHT4);
+          break;}
+      case 5:{
+          glDisable(GL_LIGHT5);
+          break;}
+      case 6:{
+          glDisable(GL_LIGHT6);
+          break;}
+      case 7:{
+          glDisable(GL_LIGHT7);
+          }
+      }
+  }*/
+  if(lights[i].isOn){
+  switch(i+1){
+  case 1:{
+          glLightfv(GL_LIGHT0,GL_AMBIENT,lights[0].light_ambient);
+          glLightfv(GL_LIGHT0,GL_DIFFUSE,lights[0].light_diffuse);
+          glLightfv(GL_LIGHT0,GL_SPECULAR,lights[0].light_specular);
+          glLightfv(GL_LIGHT0,GL_POSITION,lights[0].light_position);
+          glLightf(GL_LIGHT0,GL_CONSTANT_ATTENUATION,lights[0].intensity);
+          glEnable(GL_LIGHT0);
+      break;}
+  case 2:{
+          glLightfv(GL_LIGHT1,GL_AMBIENT,lights[1].light_ambient);
+          glLightfv(GL_LIGHT1,GL_DIFFUSE,lights[1].light_diffuse);
+          glLightfv(GL_LIGHT1,GL_SPECULAR,lights[1].light_specular);
+          glLightfv(GL_LIGHT1,GL_POSITION,lights[1].light_position);
+          glLightf(GL_LIGHT1,GL_CONSTANT_ATTENUATION,lights[1].intensity);
+          glEnable(GL_LIGHT1);
+      break;}
+  case 3:{
+          glLightfv(GL_LIGHT2,GL_AMBIENT,lights[2].light_ambient);
+          glLightfv(GL_LIGHT2,GL_DIFFUSE,lights[2].light_diffuse);
+          glLightfv(GL_LIGHT2,GL_SPECULAR,lights[2].light_specular);
+          glLightfv(GL_LIGHT2,GL_POSITION,lights[2].light_position);
+          glLightf(GL_LIGHT2,GL_CONSTANT_ATTENUATION,lights[2].intensity);
+          glEnable(GL_LIGHT2);
+      break;}
+  case 4:{
+      glLightfv(GL_LIGHT3,GL_AMBIENT,lights[3].light_ambient);
+      glLightfv(GL_LIGHT3,GL_DIFFUSE,lights[3].light_diffuse);
+      glLightfv(GL_LIGHT3,GL_SPECULAR,lights[3].light_specular);
+      glLightfv(GL_LIGHT3,GL_POSITION,lights[3].light_position);
+      glLightf(GL_LIGHT3,GL_CONSTANT_ATTENUATION,lights[3].intensity);
+      glEnable(GL_LIGHT3);
+      break;}
+  case 5:{
+      glLightfv(GL_LIGHT4,GL_AMBIENT,lights[4].light_ambient);
+      glLightfv(GL_LIGHT4,GL_DIFFUSE,lights[4].light_diffuse);
+      glLightfv(GL_LIGHT4,GL_SPECULAR,lights[4].light_specular);
+      glLightfv(GL_LIGHT4,GL_POSITION,lights[4].light_position);
+      glLightf(GL_LIGHT4,GL_CONSTANT_ATTENUATION,lights[4].intensity);
+      glEnable(GL_LIGHT4);
+      break;}
+  case 6:{
+      glLightfv(GL_LIGHT5,GL_AMBIENT,lights[5].light_ambient);
+      glLightfv(GL_LIGHT5,GL_DIFFUSE,lights[5].light_diffuse);
+      glLightfv(GL_LIGHT5,GL_SPECULAR,lights[5].light_specular);
+      glLightfv(GL_LIGHT5,GL_POSITION,lights[5].light_position);
+      glLightf(GL_LIGHT5,GL_CONSTANT_ATTENUATION,lights[5].intensity);
+      glEnable(GL_LIGHT5);
+      break;}
+  case 7:{
+      glLightfv(GL_LIGHT6,GL_AMBIENT,lights[6].light_ambient);
+      glLightfv(GL_LIGHT6,GL_DIFFUSE,lights[6].light_diffuse);
+      glLightfv(GL_LIGHT6,GL_SPECULAR,lights[6].light_specular);
+      glLightfv(GL_LIGHT6,GL_POSITION,lights[6].light_position);
+      glLightf(GL_LIGHT6,GL_CONSTANT_ATTENUATION,lights[6].intensity);
+      glEnable(GL_LIGHT6);
+      break;}
+  case 8:{
+      glLightfv(GL_LIGHT7,GL_AMBIENT,lights[7].light_ambient);
+      glLightfv(GL_LIGHT7,GL_DIFFUSE,lights[7].light_diffuse);
+      glLightfv(GL_LIGHT7,GL_SPECULAR,lights[7].light_specular);
+      glLightfv(GL_LIGHT7,GL_POSITION,lights[7].light_position);
+      glLightf(GL_LIGHT7,GL_CONSTANT_ATTENUATION,lights[7].intensity);
+      glEnable(GL_LIGHT7);
+      }
+  }
+  }
+  }
 
-  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, lmodel_ambient);
-
-
-  if(enableLight) glEnable(GL_LIGHTING); //是否开启光源
-  else glDisable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
   glEnable(GL_DEPTH_TEST);
 
   float mat_diffuse_table[] = { 0.8f, 0.8f, 0.8f, 1.0f };

@@ -2,8 +2,8 @@
 #define GLWIDGET_H
 
 #include "OBJ.h"
-#include <GL/glew.h>
-//#include <QtOpenGL>
+//#include <GL/glew.h>
+#include <QtOpenGL>
 #include <QGLWidget>
 #include <QWidget>
 #include <string>
@@ -16,6 +16,30 @@ namespace Ui {
 class GLWidget;
 }
 
+class light{
+public:
+    bool isOn;
+    GLfloat light_position[4];
+    GLfloat light_ambient[4];
+    GLfloat light_diffuse[4];
+    GLfloat light_specular[4];
+    int intensity;
+    light(){
+        GLfloat lp[4]={10.0, 10.0f, 10.0f, 0.0};
+        GLfloat la[4]={1, 1, 1, 1.0};
+        GLfloat ld[4]={0.2, 0.2, 0.2, 1.0};
+        GLfloat ls[4]={0, 0, 0, 1.0};
+        for(int i=0;i<4;i++){
+            light_position[i]=lp[i];
+            light_ambient[i]=la[i];
+            light_diffuse[i]=ld[i];
+            light_specular[i]=ls[i];
+        }
+        intensity=1;
+        isOn=false;
+    }
+};
+
 class GLWidget : public QGLWidget
 {
     Q_OBJECT
@@ -23,6 +47,9 @@ class GLWidget : public QGLWidget
 public:
     bool isWireframe;
     bool enableLight;
+    bool addLight;
+    int lightnumber;
+    light lights[8];
     GLfloat *objCenter;
     unsigned int selectedID;//场景中被选中的物体
     float lastRotateMatrix[16];     //上一次的旋转矩阵
