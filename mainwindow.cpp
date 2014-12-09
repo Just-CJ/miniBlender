@@ -814,6 +814,36 @@ void MainWindow::on_actionOpen_Project_triggered()
                 return;
             }
             emit objectSubmit(true);
+            //添加纹理
+            QString fileName = entityAttrs.last();
+            QImage tex, buf;
+            if(!buf.load(fileName)){
+               return;
+            }
+            tex = widget->convertToGLFormat(buf);
+           //    int i=textureNumber;
+            GLuint texture;
+           //    glGenTextures(1,&texture[0]);
+            glGenTextures(1,&texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(GL_TEXTURE_2D, 0, 3, tex.width(), tex.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.bits());
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理小时，采用GL_LINEAR的方法来处理
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理大时，采用GL_LINEAR的方法来处理
+            vector <object>::iterator it;
+            vector <mtl>::iterator itm=models.back().mtls.begin();
+            for(it=models.back().objects.begin();it<models.back().objects.end();it++){
+                (*itm).texID=(*it).texID=texture;
+                QStringList qsl = fileName.split("/");
+                QString qs = qsl.last();
+                (*itm).mtlname=(*it).mtlname=qs.toStdString();
+                (*itm).map_Kd_addr=(*it).map_Kd_addr=fileName;
+                itm++;
+            }
+            models.back().deleteDisplayList();
+            models.back().genDisplayList();
+
+
+            emit sendMltSubmit(widget->selectedID);
         }
         models.back().offset_x = attrs.at(2).toFloat();
         models.back().offset_y = attrs.at(3).toFloat();
@@ -840,6 +870,7 @@ void MainWindow::on_actionSave_Project_triggered()
             for(unsigned int j = 0; j< models[i].entityAttr.size(); j++){
                 projectLog += (QString::number(models[i].entityAttr[j]) + "%");
             }
+            projectLog += models[i].mtls[0].map_Kd_addr;
             projectLog += "#";
         }
         projectLog = projectLog + QString::number(models[i].offset_x) + "#" + QString::number(models[i].offset_y) + "#" + QString::number(models[i].offset_z) + "#"
