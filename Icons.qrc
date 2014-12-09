@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>Icons/addProject.ico</file>
+        <file>Icons/lightOn.ico</file>
+        <file>Icons/openFile.ico</file>
+        <file>Icons/openProject.ico</file>
+        <file>Icons/outputFile.ico</file>
+        <file>Icons/saveProject.ico</file>
+        <file>Icons/wireMode.ico</file>
+        <file>Icons/Fresh.ico</file>
+        <file>Icons/delete.ico</file>
+    </qresource>
+</RCC>

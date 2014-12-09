@@ -125,6 +125,7 @@ void GLWidget::TranslateViewPoint(){
     models[selectedID-1].offset_y = LastOBJ_y - delta_y*sin(CurrentAngleY);
     models[selectedID-1].offset_z = LastOBJ_z - delta_x*sin(CurrentAngleZ) + delta_y*cos(CurrentAngleY)*cos(CurrentAngleZ);
     }
+  emit signal_updateAttr(selectedID);
 }
 
 
@@ -181,9 +182,31 @@ void GLWidget::processHits(GLint hits, GLuint buffer[]){
              emit model_select();
            }
        }
-     //qDebug()<<"test";
 }
 
+void GLWidget::modelSelect(unsigned int SelectedID){
+    if(selectedID != SelectedID && selectedID!=0){
+        models[selectedID-1].isSelected = false;//选中了别的对象，取消前一个对象的选中状态，保证只有一个对象被选中
+        models[SelectedID-1].isSelected = true;
+        selectedID = SelectedID;
+        for(int i=0; i<16; i++)
+          lastRotateMatrix[i] = models[selectedID-1].rotateMatrix[i];
+        emit model_select();
+    }
+    else if(selectedID == 0){
+        models[SelectedID-1].isSelected = true;
+        selectedID = SelectedID;
+        for(int i=0; i<16; i++)
+          lastRotateMatrix[i] = models[selectedID-1].rotateMatrix[i];
+        emit model_select();
+    }
+    else if(selectedID == SelectedID){
+        models[selectedID-1].isSelected = false;//选中的物体再次双击时取消选中
+        selectedID = 0;
+        emit model_select();
+    }
+
+}
 
 void GLWidget::selectModel(int x, int y){
   GLuint selectBuf[SELBUFSIZE];
@@ -222,10 +245,7 @@ void GLWidget::selectModel(int x, int y){
       glLoadName(i+1);
       glPushMatrix();
       glTranslatef(models[i].offset_x, models[i].offset_y, models[i].offset_z);
-      glScalef(models[i].scale, models[i].scale, models[i].scale);
-      //glRotated(models[i].rotate_x, 1, 0, 0);
-      //glRotated(models[i].rotate_y, 0, 1, 0);
-      //glRotated(models[i].rotate_z, 0, 0, 1);
+      glScalef(models[i].scale_x, models[i].scale_y, models[i].scale_z);
       glMultMatrixf(models[i].rotateMatrix);
 
       models[i].callDisplayList();
@@ -246,6 +266,8 @@ void GLWidget::selectModel(int x, int y){
       selectedID = 0;
       emit model_select();
     }
+
+  emit signal_updateAttr(selectedID);
   glMatrixMode(GL_MODELVIEW);
   //qDebug()<<"test";
 
@@ -268,7 +290,6 @@ void GLWidget::mousePressEvent(QMouseEvent *e)
             LastOBJ_y = models[selectedID-1].offset_y;
             LastOBJ_z = models[selectedID-1].offset_z;
           }
-
       };break;
     }
 }
@@ -310,8 +331,20 @@ void GLWidget::mouseMoveEvent(QMouseEvent *e)
 
 void GLWidget::wheelEvent(QWheelEvent *e)//鼠标滑轮
 {
-    if(selectedID) e->delta() > 0 ? models[selectedID-1].scale += models[selectedID-1].scale*0.1f : models[selectedID-1].scale -= models[selectedID-1].scale*0.1f;
+    if(selectedID){
+        if(e->delta() > 0) {
+            models[selectedID-1].scale_x += models[selectedID-1].scale_x*0.1f;
+            models[selectedID-1].scale_y += models[selectedID-1].scale_y*0.1f;
+            models[selectedID-1].scale_z += models[selectedID-1].scale_z*0.1f;
+        }else{
+            models[selectedID-1].scale_x -= models[selectedID-1].scale_x*0.1f;
+            models[selectedID-1].scale_y -= models[selectedID-1].scale_y*0.1f;
+            models[selectedID-1].scale_z -= models[selectedID-1].scale_z*0.1f;
+        }
+      }
     else e->delta() > 0 ? main_scale += main_scale*0.1f : main_scale -= main_scale*0.1f;
+
+    emit signal_updateAttr(selectedID);
     this->updateGL();
 }
 
@@ -330,12 +363,12 @@ void GLWidget::mouseDoubleClickEvent(QMouseEvent *e){
 void GLWidget::initializeGL()
 {
 
-    GLenum err = glewInit();
-      if(err != GLEW_OK)
-      {
-          qDebug()<<glewGetErrorString(err);
-      }
-    setGeometry(300, 150, 640, 480);//设置窗口初始位置和大小
+//    GLenum err = glewInit();
+//      if(err != GLEW_OK)
+//      {
+//          qDebug()<<glewGetErrorString(err);
+//      }
+    setGeometry(0, 0, 910, 660);//设置窗口初始位置和大小
     glShadeModel(GL_FLAT);//设置阴影平滑模式
     glClearColor(0.0, 0.0, 0.0, 0);//改变窗口的背景颜色，不过我这里貌似设置后并没有什么效果
     glClearDepth(1.0);//设置深度缓存
@@ -466,7 +499,8 @@ void GLWidget::paintGL()
     for(unsigned int i=0; i<models.size(); i++) {//循环绘制model
         glPushMatrix();
         glTranslatef(models[i].offset_x, models[i].offset_y, models[i].offset_z);//model自身的位移
-        glScalef(models[i].scale, models[i].scale, models[i].scale);//model自身的放大缩小
+        //glScalef(models[i].scale, models[i].scale, models[i].scale);//model自身的放大缩小
+        glScalef(models[i].scale_x, models[i].scale_y, models[i].scale_z);
 
         glMultMatrixf(models[i].rotateMatrix);//乘上旋转矩阵
 
@@ -483,6 +517,7 @@ void GLWidget::paintGL()
             glPopMatrix();
             glScalef(100,100,100);
             glDisable(GL_DEPTH_TEST);//让坐标系总显示在最前
+            glScalef(1.0/models[i].scale_x, 1.0/models[i].scale_y, 1.0/models[i].scale_z);
             drawCoordinate(); //obj的中心坐标系
             glEnable(GL_DEPTH_TEST);
           }
