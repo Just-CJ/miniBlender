@@ -24,8 +24,8 @@ public:
     renameDialog *rmDialog;
     attributeWidget *attr;
     explicit MainWindow(QWidget *parent = 0);
-    int textureNumber;
-    GLuint texture[10];
+//    int textureNumber;
+//    GLuint texture[10];
     int selectedLID;
     bool selectedLight;
     ~MainWindow();
@@ -176,8 +176,14 @@ private slots:
 
     void on_actionPaste_triggered();
 
+    void on_comboBox_currentIndexChanged(int index);
+
+    void getSelectedTex();
+
 private:
     void unselectLights();
+
+    void initialTex();
 
     Ui::MainWindow *ui;
 };

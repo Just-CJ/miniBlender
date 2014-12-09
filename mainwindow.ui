@@ -115,15 +115,15 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>311</width>
-         <height>193</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
        <attribute name="label">
@@ -230,8 +230,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>311</width>
+         <height>193</height>
         </rect>
        </property>
        <attribute name="label">
@@ -684,6 +684,60 @@
          <property name="text">
           <string>texture</string>
          </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBox">
+         <item>
+          <property name="text">
+           <string>Not use</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Dirt</string>
+          </property>
+          <property name="icon">
+           <iconset resource="Textures.qrc">
+            <normaloff>:/Texture/Dirt.bmp</normaloff>:/Texture/Dirt.bmp</iconset>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Marble</string>
+          </property>
+          <property name="icon">
+           <iconset resource="Textures.qrc">
+            <normaloff>:/Texture/Marble.bmp</normaloff>:/Texture/Marble.bmp</iconset>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Stone</string>
+          </property>
+          <property name="icon">
+           <iconset resource="Textures.qrc">
+            <normaloff>:/Texture/Stone.bmp</normaloff>:/Texture/Stone.bmp</iconset>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>WallPaper</string>
+          </property>
+          <property name="icon">
+           <iconset resource="Textures.qrc">
+            <normaloff>:/Texture/WallPaper.bmp</normaloff>:/Texture/WallPaper.bmp</iconset>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Wood</string>
+          </property>
+          <property name="icon">
+           <iconset resource="Textures.qrc">
+            <normaloff>:/Texture/Wood.bmp</normaloff>:/Texture/Wood.bmp</iconset>
+          </property>
+         </item>
         </widget>
        </item>
        <item>
@@ -1199,6 +1253,7 @@
  <layoutdefault spacing="6" margin="11"/>
  <resources>
   <include location="Icons.qrc"/>
+  <include location="Textures.qrc"/>
  </resources>
  <connections>
   <connection>

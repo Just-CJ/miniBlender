@@ -43,6 +43,7 @@ FORMS    += \
     renamedialog.ui
 
 RESOURCES += \
-    Icons.qrc
+    Icons.qrc \
+    Textures.qrc
 
 

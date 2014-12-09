@@ -16,6 +16,8 @@ struct Clip{
 }Clipboard;
 
 int lightIDs[100];
+//预置的材质
+QString Texfile[5];
 struct attribute{
     QString modelName;
     int modelIndex;
@@ -46,18 +48,31 @@ MainWindow::MainWindow(QWidget *parent) :
 
     Clipboard.valid = false;
 
-    textureNumber=0;
+//    textureNumber=0;
     selectedLight=false;
+
+    //绑定预置纹理
+    initialTex();
 
     connect(widget, SIGNAL(model_select()), this, SLOT(initSpinBoxAndSlider()));
     connect(widget, SIGNAL(model_select()), this, SLOT(selectedAttribute()));
     connect(widget, SIGNAL(model_select()), this, SLOT(getSelectedItem()));
+    connect(widget, SIGNAL(model_select()), this, SLOT(getSelectedTex()));
     connect(widget, SIGNAL(signal_updateAttr(uint)), this, SLOT(updateAttribute(uint)));
     connect(attr, SIGNAL(reshape()), this, SLOT(reshapeEntity()));
     connect(rmDialog, SIGNAL(rename(QString)), this, SLOT(renameOBJ(QString)));
     connect(this, SIGNAL(objectSubmit(bool)), this, SLOT(updateCatalog(bool)));
     connect(this, SIGNAL(sendSelectOBJ(unsigned int)), widget, SLOT(modelSelect(unsigned int)));
     connect(this, SIGNAL(sendMltSubmit(uint)), this, SLOT(updateCatalogMTL(uint)));
+}
+
+void MainWindow::initialTex()
+{
+    Texfile[0] = ":/Texture/Dirt.bmp";
+    Texfile[1] = ":/Texture/Marble.bmp";
+    Texfile[2] = ":/Texture/Stone.bmp";
+    Texfile[3] = ":/Texture/WallPaper.bmp";
+    Texfile[4] = ":/Texture/Wood.bmp";
 }
 
 MainWindow::~MainWindow()
@@ -93,8 +108,8 @@ void MainWindow::getSelectedItem()
             curItem = parent->child(i);
         }
     }
-    qDebug()<<curItem->text(0);
-    qDebug()<<id;
+//    qDebug()<<curItem->text(0);
+//    qDebug()<<id;
 }
 
 void MainWindow::on_actionImport_OBJ_File_triggered()
@@ -295,7 +310,7 @@ void MainWindow::updateCatalog(bool EntityOrObject)
         ent.modelName = name;
         ent.modelIndex = indexCounter;
         QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
-        QTreeWidgetItem *objMtl = new QTreeWidgetItem(QStringList()<<QString::fromStdString(models[indexCounter].objects[0].mtlname));
+        QTreeWidgetItem *objMtl = new QTreeWidgetItem(QStringList()<<"No mtl");
         entityAttr.push_back(ent);
         newObj->addChild(objMtl);
         topItem->addChild(newObj);
@@ -321,7 +336,7 @@ void MainWindow::updateCatalog(bool EntityOrObject)
 
 void MainWindow::updateCatalogMTL(unsigned int SelectID)
 {
-    qDebug()<<SelectID;
+//    qDebug()<<SelectID;
     //首先选择控件
     int id = SelectID - 1;
     if(id < 0){
@@ -340,7 +355,6 @@ void MainWindow::updateCatalogMTL(unsigned int SelectID)
             curItem = parent->child(i);
         }
     }
-    qDebug()<<"end";
 
     curItem->child(0)->setText(0,QString::fromStdString(models[id].mtls[0].mtlname));
 }
@@ -559,7 +573,7 @@ void MainWindow::on_treeWidget_customContextMenuRequested(const QPoint &pos)
         return;
     //选中当前物体
     on_treeWidget_itemDoubleClicked(curItem,0);
-    qDebug()<<widget->selectedID;
+//    qDebug()<<widget->selectedID;
 
     QMenu *popMenu = new QMenu(this);
     popMenu->addAction(ui->actionSelect);
@@ -620,7 +634,7 @@ void MainWindow::on_actionDelete_triggered()
     if(parent->text(0) == "Lights"){
        widget->lights[lightIDs[index]].isOn=false;
        for(int i=0;i<8;i++)
-       qDebug()<<widget->lights[i].isOn;
+//       qDebug()<<widget->lights[i].isOn;
        widget->lightnumber--;
        delete curItem;
        if(selectedLight && lightIDs[index]==selectedLID)
@@ -1088,9 +1102,11 @@ void MainWindow::on_pushButton_2_clicked()
         return;
     }
     tex = widget->convertToGLFormat(buf);
-    int i=textureNumber;
-    glGenTextures(1,&texture[0]);
-    glBindTexture(GL_TEXTURE_2D, texture[i]);
+//    int i=textureNumber;
+    GLuint texture;
+//    glGenTextures(1,&texture[0]);
+    glGenTextures(1,&texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, tex.width(), tex.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.bits());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理小时，采用GL_LINEAR的方法来处理
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理大时，采用GL_LINEAR的方法来处理
@@ -1099,15 +1115,18 @@ void MainWindow::on_pushButton_2_clicked()
         vector <object>::iterator it;
         vector <mtl>::iterator itm=models[id].mtls.begin();
         for(it=models[id].objects.begin();it<models[id].objects.end();it++){
-            (*itm).texID=(*it).texID=texture[i];
-            QString qs="texture"+QString::number(i+1);
+            (*itm).texID=(*it).texID=texture;
+            QStringList qsl = fileName.split("/");
+            QString qs = qsl.last();
             (*itm).mtlname=(*it).mtlname=qs.toStdString();
             (*itm).map_Kd_addr=(*it).map_Kd_addr=fileName;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
-    textureNumber++;
+//    qDebug()<<"textureNumber"<<textureNumber;
+//    textureNumber++;
 
     emit sendMltSubmit(widget->selectedID);
 }
@@ -1228,4 +1247,76 @@ void MainWindow::on_actionPaste_triggered()
         emit objectSubmit(false);
     else
         emit objectSubmit(true);
+}
+
+void MainWindow::on_comboBox_currentIndexChanged(int index)
+{
+    qDebug()<<index;
+    if(widget->selectedID == 0)
+        return;
+    if(index == 0){
+        for(unsigned int i = 0; i<models[widget->selectedID - 1].mtls.size(); i++){ //删除预设纹理
+            if(models[widget->selectedID - 1].mtls[i].mtlname == ui->comboBox->itemText(1).toStdString() ||
+                    models[widget->selectedID - 1].mtls[i].mtlname == ui->comboBox->itemText(2).toStdString() ||
+                    models[widget->selectedID - 1].mtls[i].mtlname == ui->comboBox->itemText(3).toStdString() ||
+                    models[widget->selectedID - 1].mtls[i].mtlname == ui->comboBox->itemText(4).toStdString() ||
+                    models[widget->selectedID - 1].mtls[i].mtlname == ui->comboBox->itemText(5).toStdString())
+            glDeleteTextures(1, &(models[widget->selectedID - 1].mtls[i].texID));
+        }
+    }
+    else{
+        QString fileName = Texfile[index-1];
+        QImage tex, buf;
+        if(!buf.load(fileName)){
+            return;
+        }
+        tex = widget->convertToGLFormat(buf);
+        GLuint texture;
+        glGenTextures(1,&texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, tex.width(), tex.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.bits());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理小时，采用GL_LINEAR的方法来处理
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理大时，采用GL_LINEAR的方法来处理
+        int id=widget->selectedID-1;
+        if(id>=0){
+            vector <object>::iterator it;
+            vector <mtl>::iterator itm=models[id].mtls.begin();
+            for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+                (*itm).texID=(*it).texID=texture;
+                QString qs = ui->comboBox->currentText();
+                (*itm).mtlname=(*it).mtlname=qs.toStdString();
+                (*itm).map_Kd_addr=(*it).map_Kd_addr=fileName;
+                itm++;
+            }
+            models[id].deleteDisplayList();
+            models[id].genDisplayList();
+        }
+        emit sendMltSubmit(widget->selectedID);
+    }
+}
+
+void MainWindow::getSelectedTex()
+{
+    if(widget->selectedID == 0)
+        return;
+    else{
+        if(models[widget->selectedID - 1].mtls[0].mtlname == ui->comboBox->itemText(1).toStdString()){
+            ui->comboBox->setCurrentIndex(1);
+        }
+        else if(models[widget->selectedID - 1].mtls[0].mtlname == ui->comboBox->itemText(2).toStdString()){
+            ui->comboBox->setCurrentIndex(2);
+        }
+        else if(models[widget->selectedID - 1].mtls[0].mtlname == ui->comboBox->itemText(3).toStdString()){
+            ui->comboBox->setCurrentIndex(3);
+        }
+        else if(models[widget->selectedID - 1].mtls[0].mtlname == ui->comboBox->itemText(4).toStdString()){
+            ui->comboBox->setCurrentIndex(4);
+        }
+        else if(models[widget->selectedID - 1].mtls[0].mtlname == ui->comboBox->itemText(5).toStdString()){
+            ui->comboBox->setCurrentIndex(5);
+        }
+        else{
+            ui->comboBox->setCurrentIndex(0);
+        }
+    }
 }
