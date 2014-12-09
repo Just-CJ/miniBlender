@@ -363,11 +363,11 @@ void GLWidget::mouseDoubleClickEvent(QMouseEvent *e){
 void GLWidget::initializeGL()
 {
 
-    GLenum err = glewInit();
-      if(err != GLEW_OK)
-      {
-          qDebug()<<glewGetErrorString(err);
-      }
+//    GLenum err = glewInit();
+//      if(err != GLEW_OK)
+//      {
+//          qDebug()<<glewGetErrorString(err);
+//      }
     setGeometry(0, 0, 910, 660);//设置窗口初始位置和大小
     glShadeModel(GL_FLAT);//设置阴影平滑模式
     glClearColor(0.0, 0.0, 0.0, 0);//改变窗口的背景颜色，不过我这里貌似设置后并没有什么效果
