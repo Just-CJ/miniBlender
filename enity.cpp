@@ -63,16 +63,19 @@ model createCube(float l)
     cube.min_X = cube.min_Y = cube.min_Z = -l*1.03;
     cube.entityAttr.push_back(l);
     object obj;
+    mtl Tmtl;
     obj.vn_num = 6;
     obj.vt_num = 4;
     obj.v_num = 8;
     obj.size = 6;
-    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = 0.2;
-    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = 0.8;
-    obj.emission[0] = obj.emission[1] = obj.emission[2] = 0;
-    obj.specular[0] = obj.specular[1] = obj.specular[2] = 0;
-    obj.texID = 0;
+    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = Tmtl.ambient[0] = Tmtl.ambient[1] = Tmtl.ambient[2] = 0.2;
+    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = Tmtl.diffuse[0] = Tmtl.diffuse[1] = Tmtl.diffuse[2] = 0.8;
+    obj.emission[0] = obj.emission[1] = obj.emission[2] = Tmtl.emission[0] = Tmtl.emission[1] = Tmtl.emission[2] = 0;
+    obj.specular[0] = obj.specular[1] = obj.specular[2] = Tmtl.specular[0] = Tmtl.specular[1] = Tmtl.specular[2] = 0;
+    obj.texID = Tmtl.texID = 0;
+
     cube.objects.push_back(obj);
+    cube.mtls.push_back(Tmtl);
     cube.calObjCenter();
     cube.genDisplayList();
     return cube;
@@ -211,16 +214,19 @@ model Prismoid::createPrismoid(){
     prism.entityAttr.push_back(r);
     prism.entityAttr.push_back(rTop);
     object obj;
+    object Tmtl;
     obj.vn_num = prism.vnormals.size();
     obj.vt_num = prism.vtexs.size();
     obj.v_num = prism.vpoints.size();
     obj.size = prism.faces.size();
-    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = 0.2;
-    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = 0.8;
-    obj.emission[0] = obj.emission[1] = obj.emission[2] = 0;
-    obj.specular[0] = obj.specular[1] = obj.specular[2] = 0;
-    obj.texID = 0;
+
+    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = Tmtl.ambient[0] = Tmtl.ambient[1] = Tmtl.ambient[2] = 0.2;
+    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = Tmtl.diffuse[0] = Tmtl.diffuse[1] = Tmtl.diffuse[2] = 0.8;
+    obj.emission[0] = obj.emission[1] = obj.emission[2] = Tmtl.emission[0] = Tmtl.emission[1] = Tmtl.emission[2] = 0;
+    obj.specular[0] = obj.specular[1] = obj.specular[2] = Tmtl.specular[0] = Tmtl.specular[1] = Tmtl.specular[2] = 0;
+    obj.texID = Tmtl.texID = 0;
     prism.objects.push_back(obj);
+    prism.mtls.push_back(Tmtl);
     prism.calObjCenter();
     prism.genDisplayList();
     return prism;
@@ -258,7 +264,6 @@ model Sphere::createSphere(){
             vt.u = (float)i/(float)density;
             vt.v = (float)j/(float)density;
             sphere.vtexs.push_back(vt);
-            qDebug()<< vt.u<<" "<<vt.v<<" when i,j ="<<i<<" "<<j;
 
             vp.values(x, y, z);
             sphere.vpoints.push_back(vp);
@@ -280,16 +285,19 @@ model Sphere::createSphere(){
     sphere.max_X = sphere.max_Y = sphere.max_Z = r;
     sphere.min_X = sphere.min_Y = sphere.min_Z = -r;
     object obj;
+    mtl Tmtl;
     obj.vn_num = sphere.vnormals.size();
     obj.vt_num = sphere.vtexs.size();
     obj.v_num = sphere.vpoints.size();
     obj.size = sphere.faces.size();
-    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = 0.2;
-    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = 0.8;
-    obj.emission[0] = obj.emission[1] = obj.emission[2] = 0;
-    obj.specular[0] = obj.specular[1] = obj.specular[2] = 0;
-    obj.texID = 0;
+    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = Tmtl.ambient[0] = Tmtl.ambient[1] = Tmtl.ambient[2] = 0.2;
+    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = Tmtl.diffuse[0] = Tmtl.diffuse[1] = Tmtl.diffuse[2] = 0.8;
+    obj.emission[0] = obj.emission[1] = obj.emission[2] = Tmtl.emission[0] = Tmtl.emission[1] = Tmtl.emission[2] = 0;
+    obj.specular[0] = obj.specular[1] = obj.specular[2] = Tmtl.specular[0] = Tmtl.specular[1] = Tmtl.specular[2] = 0;
+    obj.texID = Tmtl.texID = 0;
+
     sphere.objects.push_back(obj);
+    sphere.mtls.push_back(Tmtl);
     sphere.calObjCenter();
     sphere.genDisplayList();
     return sphere;
@@ -372,16 +380,19 @@ model Cone::createCone(){
     cone.max_Z = height/2;
     cone.min_Z = -height/2;
     object obj;
+    mtl Tmtl;
     obj.vn_num = cone.vnormals.size();
     obj.vt_num = cone.vtexs.size();
     obj.v_num = cone.vpoints.size();
     obj.size = cone.faces.size();
-    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = 0.2;
-    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = 0.8;
-    obj.emission[0] = obj.emission[1] = obj.emission[2] = 0;
-    obj.specular[0] = obj.specular[1] = obj.specular[2] = 0;
-    obj.texID = 0;
+    obj.ambient[0] = obj.ambient[1] = obj.ambient[2] = Tmtl.ambient[0] = Tmtl.ambient[1] = Tmtl.ambient[2] = 0.2;
+    obj.diffuse[0] = obj.diffuse[1] = obj.diffuse[2] = Tmtl.diffuse[0] = Tmtl.diffuse[1] = Tmtl.diffuse[2] = 0.8;
+    obj.emission[0] = obj.emission[1] = obj.emission[2] = Tmtl.emission[0] = Tmtl.emission[1] = Tmtl.emission[2] = 0;
+    obj.specular[0] = obj.specular[1] = obj.specular[2] = Tmtl.specular[0] = Tmtl.specular[1] = Tmtl.specular[2] = 0;
+    obj.texID = Tmtl.texID = 0;
+
     cone.objects.push_back(obj);
+    cone.mtls.push_back(Tmtl);
     cone.calObjCenter();
     cone.genDisplayList();
     return cone;

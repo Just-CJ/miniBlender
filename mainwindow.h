@@ -3,8 +3,13 @@
 
 #include <QMainWindow>
 #include <QTreeWidget>
+#include <QDialog>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
 #include "glwidget.h"
 #include "attributewidget.h"
+#include "renamedialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -16,14 +21,21 @@ class MainWindow : public QMainWindow
 
 public:
     GLWidget *widget;
+    renameDialog *rmDialog;
     attributeWidget *attr;
     explicit MainWindow(QWidget *parent = 0);
+//    int textureNumber;
+//    GLuint texture[10];
+    int selectedLID;
+    bool selectedLight;
     ~MainWindow();
 
 signals:
     void objectSubmit(bool EntityOrObject);
 
     void sendSelectOBJ(unsigned int SelectID);
+
+    void sendMltSubmit(unsigned int SelectID);
 
 private slots:
     void initSpinBoxAndSlider();
@@ -38,7 +50,7 @@ private slots:
 
     void on_actionWire_Solid_triggered();
 
-    void on_actionLight_On_Off_triggered();
+    void on_actionAdd_light_triggered();
 
     void on_horizontalSlider_valueChanged(int value);
 
@@ -55,6 +67,8 @@ private slots:
     void updateCatalog(bool EntityOrObject);
 
     void initialCatalog();
+
+    void updateCatalogMTL(unsigned int SelectID);
 
     void on_actionAdd_cube_triggered();
 
@@ -98,7 +112,79 @@ private slots:
 
     void on_actionSave_Project_triggered();
 
+    void on_tabWidget_tabBarClicked(int index);
+
+    void on_ambient1_valueChanged(double arg1);
+
+    void on_ambient2_valueChanged(double arg1);
+
+    void on_ambient3_valueChanged(double arg1);
+
+    void on_diffuse1_valueChanged(double arg1);
+
+    void on_diffuse2_valueChanged(double arg1);
+
+    void on_diffuse3_valueChanged(double arg1);
+
+    void on_specular1_valueChanged(double arg1);
+
+    void on_specular2_valueChanged(double arg1);
+
+    void on_specular3_valueChanged(double arg1);
+
+    void on_emission1_valueChanged(double arg1);
+
+    void on_emission2_valueChanged(double arg1);
+
+    void on_emission3_valueChanged(double arg1);
+
+    void on_lambient1_valueChanged(double arg1);
+
+    void on_lambient2_valueChanged(double arg1);
+
+    void on_lambient3_valueChanged(double arg1);
+
+    void on_ldiffuse1_valueChanged(double arg1);
+
+    void on_ldiffuse2_valueChanged(double arg1);
+
+    void on_ldiffuse3_valueChanged(double arg1);
+
+    void on_lspecular1_valueChanged(double arg1);
+
+    void on_lspecular2_valueChanged(double arg1);
+
+    void on_lspecular3_valueChanged(double arg1);
+
+    void on_lposition1_valueChanged(double arg1);
+
+    void on_lposition2_valueChanged(double arg1);
+
+    void on_lposition3_valueChanged(double arg1);
+
+    void on_intensity_valueChanged(double arg1);
+
+    void on_pushButton_2_clicked();
+
+    void on_actionLight_on_off_triggered();
+
+    void renameOBJ(QString newName);
+
+    void on_actionRename_triggered();
+
+    void on_actionCopy_triggered();
+
+    void on_actionPaste_triggered();
+
+    void on_comboBox_currentIndexChanged(int index);
+
+    void getSelectedTex();
+
 private:
+    void unselectLights();
+
+    void initialTex();
+
     Ui::MainWindow *ui;
 };
 

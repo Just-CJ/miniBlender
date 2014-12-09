@@ -10,6 +10,14 @@
 
 using namespace std;
 extern vector<model> models;
+struct Clip{
+    model mod;
+    bool valid;
+}Clipboard;
+
+int lightIDs[100];
+//预置的材质
+QString Texfile[5];
 struct attribute{
     QString modelName;
     int modelIndex;
@@ -36,18 +44,49 @@ MainWindow::MainWindow(QWidget *parent) :
     initialCatalog();
     indexCounter = 0;
 
+    rmDialog = new renameDialog();
+
+    Clipboard.valid = false;
+
+//    textureNumber=0;
+    selectedLight=false;
+
+    //绑定预置纹理
+    initialTex();
+
     connect(widget, SIGNAL(model_select()), this, SLOT(initSpinBoxAndSlider()));
     connect(widget, SIGNAL(model_select()), this, SLOT(selectedAttribute()));
     connect(widget, SIGNAL(model_select()), this, SLOT(getSelectedItem()));
+    connect(widget, SIGNAL(model_select()), this, SLOT(getSelectedTex()));
     connect(widget, SIGNAL(signal_updateAttr(uint)), this, SLOT(updateAttribute(uint)));
     connect(attr, SIGNAL(reshape()), this, SLOT(reshapeEntity()));
+    connect(rmDialog, SIGNAL(rename(QString)), this, SLOT(renameOBJ(QString)));
     connect(this, SIGNAL(objectSubmit(bool)), this, SLOT(updateCatalog(bool)));
     connect(this, SIGNAL(sendSelectOBJ(unsigned int)), widget, SLOT(modelSelect(unsigned int)));
+    connect(this, SIGNAL(sendMltSubmit(uint)), this, SLOT(updateCatalogMTL(uint)));
+}
+
+void MainWindow::initialTex()
+{
+    Texfile[0] = ":/Texture/Dirt.bmp";
+    Texfile[1] = ":/Texture/Marble.bmp";
+    Texfile[2] = ":/Texture/Stone.bmp";
+    Texfile[3] = ":/Texture/WallPaper.bmp";
+    Texfile[4] = ":/Texture/Wood.bmp";
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+void MainWindow::unselectLights()
+{
+    QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(2);
+    for(int i = 0; i< parent->childCount(); i++){
+        QString qs = parent->child(i)->text(0);
+        qs.replace("*", "");
+        parent->child(i)->setText(0,qs);
+    }
 }
 
 void MainWindow::getSelectedItem()
@@ -69,8 +108,8 @@ void MainWindow::getSelectedItem()
             curItem = parent->child(i);
         }
     }
-    qDebug()<<curItem->text(0);
-    qDebug()<<id;
+//    qDebug()<<curItem->text(0);
+//    qDebug()<<id;
 }
 
 void MainWindow::on_actionImport_OBJ_File_triggered()
@@ -89,6 +128,21 @@ void MainWindow::on_actionImport_OBJ_File_triggered()
     }
 }
 
+
+
+void MainWindow::on_actionAdd_light_triggered()
+{
+     int i;
+     for(i=0;i<8;i++) if(!widget->lights[i].isOn) break;
+     widget->addLight=true;
+     widget->lightnumber++;
+     QTreeWidgetItem *topItem = ui->treeWidget->topLevelItem(2);
+     QString name = "light" + QString::number(widget->lightnumber);
+     QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
+     topItem->addChild(newObj);
+     lightIDs[widget->lightnumber-1]=i;
+}
+
 void MainWindow::on_actionWire_Solid_triggered()
 {
     if(widget->isWireframe){
@@ -96,17 +150,7 @@ void MainWindow::on_actionWire_Solid_triggered()
       }
     else{
         widget->isWireframe = true;
-      }
-}
-
-void MainWindow::on_actionLight_On_Off_triggered()
-{
-    if(widget->enableLight){
-        widget->enableLight = false;
-      }
-    else{
-        widget->enableLight = true;
-      }
+    }
 }
 
 void MainWindow::initSpinBoxAndSlider()
@@ -253,6 +297,8 @@ void MainWindow::initialCatalog()
     ui->treeWidget->addTopLevelItem(Objects);
     QTreeWidgetItem *Entities = new QTreeWidgetItem(QStringList()<<"Entities");
     ui->treeWidget->addTopLevelItem(Entities);
+    QTreeWidgetItem *Lights = new QTreeWidgetItem(QStringList()<<"Lights");
+    ui->treeWidget->addTopLevelItem(Lights);
 }
 
 void MainWindow::updateCatalog(bool EntityOrObject)
@@ -263,10 +309,11 @@ void MainWindow::updateCatalog(bool EntityOrObject)
         attribute ent;
         ent.modelName = name;
         ent.modelIndex = indexCounter;
-        entityAttr.push_back(ent);
         QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
+        QTreeWidgetItem *objMtl = new QTreeWidgetItem(QStringList()<<"No mtl");
+        entityAttr.push_back(ent);
+        newObj->addChild(objMtl);
         topItem->addChild(newObj);
-
         indexCounter++;
     }
     else{
@@ -277,24 +324,75 @@ void MainWindow::updateCatalog(bool EntityOrObject)
         obj.modelIndex = indexCounter;
         objAttr.push_back(obj);
         QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
+        for(unsigned int i = 0; i< models[indexCounter].mtls.size(); i++){
+            QTreeWidgetItem *objMtl = new QTreeWidgetItem(QStringList()<<QString::fromStdString(models[indexCounter].mtls[i].mtlname));
+            newObj->addChild(objMtl);
+        }
         topItem->addChild(newObj);
 
         indexCounter++;
     }
 }
 
+void MainWindow::updateCatalogMTL(unsigned int SelectID)
+{
+//    qDebug()<<SelectID;
+    //首先选择控件
+    int id = SelectID - 1;
+    if(id < 0){
+        curItem = NULL;
+        return;
+    }
+    for(unsigned int i = 0; i< objAttr.size(); i++){
+        if(objAttr[i].modelIndex == id){
+            QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(0);
+            curItem = parent->child(i);
+        }
+    }
+    for(unsigned int i = 0; i< entityAttr.size(); i++){
+        if(entityAttr[i].modelIndex == id){
+            QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(1);
+            curItem = parent->child(i);
+        }
+    }
+
+    curItem->child(0)->setText(0,QString::fromStdString(models[id].mtls[0].mtlname));
+}
+
 void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     QTreeWidgetItem *parent = item->parent();
-    if(parent == NULL)
+    if(parent == NULL || (parent->text(column) != "Objects" && parent->text(column) != "Entities" && parent->text(column) != "Lights"))
         return;
+
     int index = parent->indexOfChild(item);
-    int currentModelID;
-    if(parent->text(column) == "Objects")
+    unsigned int currentModelID;
+    if(parent->text(column) == "Objects"){
        currentModelID = objAttr[index].modelIndex;
-    else
+       if(currentModelID + 1 == widget->selectedID)
+           return;
+    }
+    if(parent->text(column) == "Entities"){
        currentModelID = entityAttr[index].modelIndex;
-//    qDebug()<<currentModelID;
+       if(currentModelID + 1 == widget->selectedID)
+           return;
+    }
+    if(parent->text(column) == "Lights"){
+       unselectLights();
+       selectedLID=lightIDs[index];
+       selectedLight=true;
+       QString qs="*"+item->text(0);
+       item->setText(0,qs);
+       for(int i=0;i<parent->childCount();i++)
+           if(i!=selectedLID && parent->child(i)->text(0)[0]=='*'){
+               qs="";
+               int l=parent->child(i)->text(0).length();
+               for(int j=1;j<l;j++)
+                   qs+=parent->child(i)->text(0)[j];
+               parent->child(i)->setText(0,qs);
+           }
+       return;
+    }
 
     emit sendSelectOBJ(currentModelID + 1);
 }
@@ -471,9 +569,21 @@ void MainWindow::on_treeWidget_customContextMenuRequested(const QPoint &pos)
     curItem = ui->treeWidget->itemAt(pos);
     if(curItem==NULL || curItem->parent()==NULL)
         return;
+    else if(curItem->parent()->text(0) != "Objects" && curItem->parent()->text(0) != "Entities" && curItem->parent()->text(0) != "Lights" )
+        return;
+    //选中当前物体
+    on_treeWidget_itemDoubleClicked(curItem,0);
+//    qDebug()<<widget->selectedID;
+
     QMenu *popMenu = new QMenu(this);
     popMenu->addAction(ui->actionSelect);
     popMenu->addAction(ui->actionDelete);
+    popMenu->addAction(ui->actionRename);
+    if(curItem->parent()->text(0) != "Lights" ){
+        popMenu->addSeparator();
+        popMenu->addAction(ui->actionCopy);
+        popMenu->addAction(ui->actionPaste);
+    }
     popMenu->exec(QCursor::pos());
 }
 
@@ -486,15 +596,31 @@ void MainWindow::on_actionSelect_triggered()
     int currentModelID;
     if(parent->text(0) == "Objects")
        currentModelID = objAttr[index].modelIndex;
-    else
+    if(parent->text(0) == "Entities")
        currentModelID = entityAttr[index].modelIndex;
-
-    emit sendSelectOBJ(currentModelID + 1);
+    if(parent->text(0) == "Lights"){
+       unselectLights();
+       selectedLID=lightIDs[index];
+       selectedLight=true;
+       QString qs="*"+curItem->text(0);
+       curItem->setText(0,qs);
+       for(int i=0;i<parent->childCount();i++)
+           if(i!=selectedLID && parent->child(i)->text(0)[0]=='*'){
+               qs="";
+               int l=parent->child(i)->text(0).length();
+               for(int j=1;j<l;j++)
+                   qs+=parent->child(i)->text(0)[j];
+               parent->child(i)->setText(0,qs);
+           }
+    }
+    else {
+        emit sendSelectOBJ(currentModelID + 1);
+    }
 }
 
 void MainWindow::on_actionDelete_triggered()
 {
-    if(curItem == NULL || widget->selectedID == 0)
+    if(curItem == NULL)
         return;
     QTreeWidgetItem *parent = curItem->parent();
     if(parent == NULL)
@@ -503,8 +629,19 @@ void MainWindow::on_actionDelete_triggered()
     int currentModelID;
     if(parent->text(0) == "Objects")
        currentModelID = objAttr[index].modelIndex;
-    else
+    if(parent->text(0) == "Entities")
        currentModelID = entityAttr[index].modelIndex;
+    if(parent->text(0) == "Lights"){
+       widget->lights[lightIDs[index]].isOn=false;
+       for(int i=0;i<8;i++)
+//       qDebug()<<widget->lights[i].isOn;
+       widget->lightnumber--;
+       delete curItem;
+       if(selectedLight && lightIDs[index]==selectedLID)
+       selectedLight=false;
+       return;
+    }
+    //qDebug()<<widget->selectedID<<" "<<curItem->text(0)<<" "<<currentModelID;
 
     vector<model>::iterator it = models.begin() + currentModelID;
     for(unsigned int i=0; i<models[currentModelID].mtls.size(); i++){ //删除绑定纹理
@@ -519,7 +656,7 @@ void MainWindow::on_actionDelete_triggered()
 
     if(parent->text(0) == "Objects") //删除objAttr和entityAttr里对应的项
        objAttr.erase(objAttr.begin()+index);
-    else
+    if(parent->text(0) == "Entities")
        entityAttr.erase(entityAttr.begin()+index);
 
     delete curItem;
@@ -536,6 +673,7 @@ void MainWindow::on_actionDelete_triggered()
     }
 
     widget->selectedID = 0;
+    curItem = NULL;
 }
 
 void MainWindow::updateAttribute(unsigned int selectedID){
@@ -713,4 +851,472 @@ void MainWindow::on_actionSave_Project_triggered()
     QTextStream out(&file);
     out << projectLog;
     file.close();
+}
+
+void MainWindow::on_tabWidget_tabBarClicked(int index)
+{
+    if(index==2){
+        int id=widget->selectedID-1;
+        if(id>=0){
+            vector<object>::iterator it=models[id].objects.begin();
+            ui->ambient1->setValue((*it).ambient[0]);
+            ui->ambient2->setValue((*it).ambient[1]);
+            ui->ambient3->setValue((*it).ambient[2]);
+            ui->diffuse1->setValue((*it).diffuse[0]);
+            ui->diffuse2->setValue((*it).diffuse[1]);
+            ui->diffuse3->setValue((*it).diffuse[2]);
+            ui->specular1->setValue((*it).specular[0]);
+            ui->specular2->setValue((*it).specular[1]);
+            ui->specular3->setValue((*it).specular[2]);
+            ui->emission1->setValue((*it).emission[0]);
+            ui->emission2->setValue((*it).emission[1]);
+            ui->emission3->setValue((*it).emission[2]);
+        }
+        else{
+            ui->ambient1->setValue(0);
+            ui->ambient2->setValue(0);
+            ui->ambient3->setValue(0);
+            ui->diffuse1->setValue(0);
+            ui->diffuse2->setValue(0);
+            ui->diffuse3->setValue(0);
+            ui->specular1->setValue(0);
+            ui->specular2->setValue(0);
+            ui->specular3->setValue(0);
+            ui->emission1->setValue(0);
+            ui->emission2->setValue(0);
+            ui->emission3->setValue(0);
+        }
+    }
+    if(index==3){
+        if(selectedLight){
+            int i=selectedLID;
+            light l=widget->lights[i];
+            ui->lambient1->setValue(l.light_ambient[0]);
+            ui->lambient2->setValue(l.light_ambient[1]);
+            ui->lambient3->setValue(l.light_ambient[2]);
+            ui->ldiffuse1->setValue(l.light_diffuse[0]);
+            ui->ldiffuse2->setValue(l.light_diffuse[1]);
+            ui->ldiffuse3->setValue(l.light_diffuse[2]);
+            ui->lspecular1->setValue(l.light_specular[0]);
+            ui->lspecular2->setValue(l.light_specular[1]);
+            ui->lspecular3->setValue(l.light_specular[2]);
+            ui->lposition1->setValue(l.light_position[0]);
+            ui->lposition2->setValue(l.light_position[1]);
+            ui->lposition3->setValue(l.light_position[2]);
+            ui->intensity->setValue(l.intensity);
+       }
+       else{
+            ui->lambient1->setValue(0);
+            ui->lambient2->setValue(0);
+            ui->lambient3->setValue(0);
+            ui->ldiffuse1->setValue(0);
+            ui->ldiffuse2->setValue(0);
+            ui->ldiffuse3->setValue(0);
+            ui->lspecular1->setValue(0);
+            ui->lspecular2->setValue(0);
+            ui->lspecular3->setValue(0);
+            ui->lposition1->setValue(0);
+            ui->lposition2->setValue(0);
+            ui->lposition3->setValue(0);
+            ui->intensity->setValue(0);
+       }
+    }
+}
+
+void MainWindow::on_ambient1_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).ambient[0]=(*it).ambient[0]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_ambient2_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).ambient[1]=(*it).ambient[1]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+
+void MainWindow::on_ambient3_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;\
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).ambient[2]=(*it).ambient[2]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+
+void MainWindow::on_diffuse1_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).diffuse[0]=(*it).diffuse[0]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_diffuse2_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).diffuse[1]=(*it).diffuse[1]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_diffuse3_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).diffuse[2]=(*it).diffuse[2]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_specular1_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).specular[0]=(*it).specular[0]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_specular2_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).specular[1]=(*it).specular[1]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_specular3_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+           (*itm).specular[2]=(*it).specular[2]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_emission1_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).emission[0]=(*it).emission[0]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_emission2_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).emission[1]=(*it).emission[1]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_emission3_valueChanged(double arg1)
+{
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector<object>::iterator it;
+        vector<mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).emission[2]=(*it).emission[2]=arg1;
+            itm++;
+        }
+        models[id].genDisplayList();
+    }
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+
+    QString fileName = QFileDialog::getOpenFileName(this,tr("open file"),"E:/Images",tr("BMP file(*.bmp)"));
+    QImage tex, buf;
+    if(!buf.load(fileName)){
+        return;
+    }
+    tex = widget->convertToGLFormat(buf);
+//    int i=textureNumber;
+    GLuint texture;
+//    glGenTextures(1,&texture[0]);
+    glGenTextures(1,&texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, tex.width(), tex.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.bits());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理小时，采用GL_LINEAR的方法来处理
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理大时，采用GL_LINEAR的方法来处理
+    int id=widget->selectedID-1;
+    if(id>=0){
+        vector <object>::iterator it;
+        vector <mtl>::iterator itm=models[id].mtls.begin();
+        for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+            (*itm).texID=(*it).texID=texture;
+            QStringList qsl = fileName.split("/");
+            QString qs = qsl.last();
+            (*itm).mtlname=(*it).mtlname=qs.toStdString();
+            (*itm).map_Kd_addr=(*it).map_Kd_addr=fileName;
+            itm++;
+        }
+        models[id].deleteDisplayList();
+        models[id].genDisplayList();
+    }
+//    qDebug()<<"textureNumber"<<textureNumber;
+//    textureNumber++;
+
+    emit sendMltSubmit(widget->selectedID);
+}
+
+void MainWindow::on_lambient1_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_ambient[0]=arg1;
+}
+
+void MainWindow::on_lambient2_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_ambient[1]=arg1;
+}
+
+void MainWindow::on_lambient3_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_ambient[2]=arg1;
+}
+
+void MainWindow::on_ldiffuse1_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_diffuse[0]=arg1;
+}
+
+void MainWindow::on_ldiffuse2_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_diffuse[1]=arg1;
+}
+
+void MainWindow::on_ldiffuse3_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_diffuse[2]=arg1;
+}
+
+void MainWindow::on_lspecular1_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_specular[0]=arg1;
+}
+
+void MainWindow::on_lspecular2_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_specular[1]=arg1;
+}
+
+void MainWindow::on_lspecular3_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_specular[2]=arg1;
+}
+
+void MainWindow::on_lposition1_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_position[0]=arg1;
+}
+
+void MainWindow::on_lposition2_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_position[1]=arg1;
+}
+
+void MainWindow::on_lposition3_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].light_position[2]=arg1;
+}
+
+void MainWindow::on_intensity_valueChanged(double arg1)
+{
+    if(selectedLight)
+        widget->lights[selectedLID].intensity=arg1;
+}
+
+
+
+void MainWindow::on_actionLight_on_off_triggered()
+{
+    if(widget->enableLight)
+        widget->enableLight=false;
+    else
+        widget->enableLight=true;
+}
+
+void MainWindow::on_actionRename_triggered()
+{
+    rmDialog->show();
+}
+
+void MainWindow::renameOBJ(QString newName)
+{
+    curItem->setText(0, newName);
+}
+
+void MainWindow::on_actionCopy_triggered()
+{
+    if(widget->selectedID == 0)
+        return;
+    Clipboard.mod = models[widget->selectedID-1];
+    Clipboard.mod.isSelected = false;
+    Clipboard.valid = true;
+}
+
+void MainWindow::on_actionPaste_triggered()
+{
+    if(!Clipboard.valid)
+        return;
+    models.push_back(Clipboard.mod);
+    if(Clipboard.mod.type == NOT)
+        emit objectSubmit(false);
+    else
+        emit objectSubmit(true);
+}
+
+void MainWindow::on_comboBox_currentIndexChanged(int index)
+{
+    qDebug()<<index;
+    if(widget->selectedID == 0)
+        return;
+    if(index == 0){
+        for(unsigned int i = 0; i<models[widget->selectedID - 1].mtls.size(); i++){ //删除预设纹理
+            if(models[widget->selectedID - 1].mtls[i].mtlname == ui->comboBox->itemText(1).toStdString() ||
+                    models[widget->selectedID - 1].mtls[i].mtlname == ui->comboBox->itemText(2).toStdString() ||
+                    models[widget->selectedID - 1].mtls[i].mtlname == ui->comboBox->itemText(3).toStdString() ||
+                    models[widget->selectedID - 1].mtls[i].mtlname == ui->comboBox->itemText(4).toStdString() ||
+                    models[widget->selectedID - 1].mtls[i].mtlname == ui->comboBox->itemText(5).toStdString())
+            glDeleteTextures(1, &(models[widget->selectedID - 1].mtls[i].texID));
+        }
+    }
+    else{
+        QString fileName = Texfile[index-1];
+        QImage tex, buf;
+        if(!buf.load(fileName)){
+            return;
+        }
+        tex = widget->convertToGLFormat(buf);
+        GLuint texture;
+        glGenTextures(1,&texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, tex.width(), tex.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.bits());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理小时，采用GL_LINEAR的方法来处理
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//当所显示的纹理比加载进来的纹理大时，采用GL_LINEAR的方法来处理
+        int id=widget->selectedID-1;
+        if(id>=0){
+            vector <object>::iterator it;
+            vector <mtl>::iterator itm=models[id].mtls.begin();
+            for(it=models[id].objects.begin();it<models[id].objects.end();it++){
+                (*itm).texID=(*it).texID=texture;
+                QString qs = ui->comboBox->currentText();
+                (*itm).mtlname=(*it).mtlname=qs.toStdString();
+                (*itm).map_Kd_addr=(*it).map_Kd_addr=fileName;
+                itm++;
+            }
+            models[id].deleteDisplayList();
+            models[id].genDisplayList();
+        }
+        emit sendMltSubmit(widget->selectedID);
+    }
+}
+
+void MainWindow::getSelectedTex()
+{
+    if(widget->selectedID == 0)
+        return;
+    else{
+        if(models[widget->selectedID - 1].mtls[0].mtlname == ui->comboBox->itemText(1).toStdString()){
+            ui->comboBox->setCurrentIndex(1);
+        }
+        else if(models[widget->selectedID - 1].mtls[0].mtlname == ui->comboBox->itemText(2).toStdString()){
+            ui->comboBox->setCurrentIndex(2);
+        }
+        else if(models[widget->selectedID - 1].mtls[0].mtlname == ui->comboBox->itemText(3).toStdString()){
+            ui->comboBox->setCurrentIndex(3);
+        }
+        else if(models[widget->selectedID - 1].mtls[0].mtlname == ui->comboBox->itemText(4).toStdString()){
+            ui->comboBox->setCurrentIndex(4);
+        }
+        else if(models[widget->selectedID - 1].mtls[0].mtlname == ui->comboBox->itemText(5).toStdString()){
+            ui->comboBox->setCurrentIndex(5);
+        }
+        else{
+            ui->comboBox->setCurrentIndex(0);
+        }
+    }
 }

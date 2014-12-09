@@ -5,11 +5,13 @@
 #-------------------------------------------------
 
 QT       += core gui
-QT       += opengl
+QT       += opengl 
 
 
-LIBS += -lglew32
-LIBS += -lfreeglut
+LIBS += -lglut32
+LIBS += -LC:\glut
+#LIBS += -lglew32
+LIBS += -lfreeglut 
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -23,21 +25,25 @@ SOURCES += main.cpp\
     OBJ.cpp \
     mainwindow.cpp \
     enity.cpp \
-    attributewidget.cpp
+    attributewidget.cpp \
+    renamedialog.cpp
 
 HEADERS  += \
     glwidget.h \
     OBJ.h \
     mainwindow.h \
     enity.h \
-    attributewidget.h
+    attributewidget.h \
+    renamedialog.h
 
 FORMS    += \
     glwidget.ui \
     mainwindow.ui \
-    attributewidget.ui
+    attributewidget.ui \
+    renamedialog.ui
 
 RESOURCES += \
-    Icons.qrc
+    Icons.qrc \
+    Textures.qrc
 
 
