@@ -377,7 +377,7 @@ void drawCoordinate()
     glPushMatrix();
     glTranslatef(0.5, 0.0f, 0.0f);
     glRotatef(90.0f,0.0f,1.0f,0.0f);
-    //glutSolidCone(0.027,0.09,10,10);
+    glutSolidCone(0.027,0.09,10,10);
 
     glPopMatrix();
 
@@ -393,7 +393,7 @@ void drawCoordinate()
     glPushMatrix();
     glTranslatef(0.0, 0.5f, 0.0f);
     glRotatef(-90.0f,1.0f,0.0f,0.0f);
-    //glutSolidCone(0.027,0.09,10,10);
+    glutSolidCone(0.027,0.09,10,10);
     glPopMatrix();
 
     float mat_diffuse_z[] = { 0.0f, 0.0f, 0.8f, 1.0f };
@@ -407,7 +407,7 @@ void drawCoordinate()
     glEnd();
     glPushMatrix();
     glTranslatef(0.0, 0.0f, 0.5f);
-    //glutSolidCone(0.027,0.09,10,10);
+    glutSolidCone(0.027,0.09,10,10);
     glPopMatrix();
     glPopAttrib();
 }

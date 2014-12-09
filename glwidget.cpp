@@ -45,6 +45,12 @@ GLWidget::GLWidget(QGLWidget *parent) :
     /*初始化成员*/
     initOBJ();
 
+    CursorMode = ORBIT;
+    PanAngle = 0.0;
+
+    beRotate = false;
+    global_rotate = 0.0;
+
     selectedID = 0;//0表示没有物体被选中
 
     isWireframe = false;
@@ -71,6 +77,9 @@ GLWidget::GLWidget(QGLWidget *parent) :
     upy=0.1;
     upz=0;
 
+    world_center_x = 0.0;
+    world_center_z = 0.0;
+
     CurrentAngleZ=0;
     CurrentAngleY=0;
     LastAngleZ=M_PI/4;
@@ -83,36 +92,57 @@ GLWidget::GLWidget(QGLWidget *parent) :
 
 void GLWidget::RotateViewPoint()
 {
-    float avAnale=M_PI/180*0.6; //把每次移动的角度单位化
+    if(CursorMode == ORBIT){
+      float avAnale=M_PI/180*0.6; //把每次移动的角度单位化
 
-    /*把每次移动点跟开始按下鼠标记录的点作差，然后乘以avAngle,最后把上一次释放鼠标后时记录的
-      角度相加起来*/
-    //if(!selectedID){
-      CurrentAngleZ=-(EndPoint.x()-StartPoint.x())*avAnale;
-      CurrentAngleZ+=LastAngleZ;
-      CurrentAngleY=-(EndPoint.y()-StartPoint.y())*avAnale;
-      CurrentAngleY+=LastAngleY;
-
-
-      QVector3D vector1(sin(CurrentAngleY)*sin(CurrentAngleZ),cos(CurrentAngleY),sin(CurrentAngleY)*cos(CurrentAngleZ));
-      vector1=vector1.normalized();  //将坐标单位化
-      eyex=vector1.x();
-      eyey=vector1.y();
-      eyez=vector1.z();
-
-      /*主要计算第三组坐标*/
-      QVector3D vectorA(0,sin(CurrentAngleY),0);
-      QVector3D vectorB=QVector3D(0,0,0)-QVector3D(sin(CurrentAngleY)*sin(CurrentAngleZ),0,sin(CurrentAngleY)*cos(CurrentAngleZ));
-      QVector3D vectorAB=QVector3D::crossProduct(vectorA,vectorB);
+      /*把每次移动点跟开始按下鼠标记录的点作差，然后乘以avAngle,最后把上一次释放鼠标后时记录的
+        角度相加起来*/
+      //if(!selectedID){
+        CurrentAngleZ=-(EndPoint.x()-StartPoint.x())*avAnale;
+        CurrentAngleZ+=LastAngleZ;
+        CurrentAngleY=-(EndPoint.y()-StartPoint.y())*avAnale;
+        CurrentAngleY+=LastAngleY;
 
 
-      QVector3D vectorC=QVector3D(0,0,0)-vector1;
-      QVector3D vector2=QVector3D::crossProduct(vectorC,vectorAB);
-      vector2=vector2.normalized();
-      upx=vector2.x();
-      upy=vector2.y();
-      upz=vector2.z();
-      //}
+        QVector3D vector1(sin(CurrentAngleY)*sin(CurrentAngleZ),cos(CurrentAngleY),sin(CurrentAngleY)*cos(CurrentAngleZ));
+        vector1=vector1.normalized();  //将坐标单位化
+        eyex=vector1.x();
+        eyey=vector1.y();
+        eyez=vector1.z();
+
+        /*主要计算第三组坐标*/
+        QVector3D vectorA(0,sin(CurrentAngleY),0);
+        QVector3D vectorB=QVector3D(0,0,0)-QVector3D(sin(CurrentAngleY)*sin(CurrentAngleZ),0,sin(CurrentAngleY)*cos(CurrentAngleZ));
+        QVector3D vectorAB=QVector3D::crossProduct(vectorA,vectorB);
+
+
+        QVector3D vectorC=QVector3D(0,0,0)-vector1;
+        QVector3D vector2=QVector3D::crossProduct(vectorC,vectorAB);
+        vector2=vector2.normalized();
+        upx=vector2.x();
+        upy=vector2.y();
+        upz=vector2.z();
+      }
+    else if(CursorMode == PAN){
+              float avAnale=M_PI/180*0.6; //把每次移动的角度单位化
+
+              /*把每次移动点跟开始按下鼠标记录的点作差，然后乘以avAngle,最后把上一次释放鼠标后时记录的
+              角度相加起来*/
+              PanAngle = -(EndPoint.x()-StartPoint.x())*avAnale;
+              PanAngle += LastPanAngle;
+
+              GLfloat upx_new = lastupx*cos(-PanAngle)-lastupz*sin(-PanAngle);
+              GLfloat upz_new = lastupx*sin(-PanAngle)+lastupz*cos(-PanAngle);
+
+              GLfloat tmpx = main_scale*sin(CurrentAngleY)*sin(CurrentAngleZ)*cos(-PanAngle)-main_scale*sin(CurrentAngleY)*cos(CurrentAngleZ)*sin(-PanAngle);
+              GLfloat tmpz = main_scale*sin(CurrentAngleY)*sin(CurrentAngleZ)*sin(-PanAngle)+main_scale*sin(CurrentAngleY)*cos(CurrentAngleZ)*cos(-PanAngle);
+
+              delta_Panx = main_scale*sin(CurrentAngleY)*sin(CurrentAngleZ) - tmpx;
+              delta_Panz = main_scale*sin(CurrentAngleY)*cos(CurrentAngleZ) - tmpz;
+
+              upx = upx_new;
+              upz = upz_new;
+          }
 }
 
 void GLWidget::TranslateViewPoint(){
@@ -142,7 +172,7 @@ void GLWidget::processHits(GLint hits, GLuint buffer[]){
      ptr = (GLuint *) buffer;
      for (i = 0; i < hits; i++) {  /* for each hit  */
         names = *ptr;
-        qDebug()<<" number of names for hit = "<<names; ptr++;
+        ptr++;
         if(i==0){//至少存在一个命中时
             minZ = *ptr; ptr+=2;
             for (j = 0; j < names; j++) {  /* for each name */
@@ -209,6 +239,9 @@ void GLWidget::modelSelect(unsigned int SelectedID){
         emit model_select();
     }
 
+    emit sendSelectLightMTL(2);
+    emit signal_updateAttr(selectedID);
+
 }
 
 void GLWidget::selectModel(int x, int y){
@@ -227,22 +260,26 @@ void GLWidget::selectModel(int x, int y){
   glPushMatrix();
   glLoadIdentity();
 
-  qDebug()<<x<<y;
   gluPickMatrix((GLdouble)x, (GLdouble)(viewport[3] - y), 5.0, 5.0, viewport);//5*5的区域进行选取
 
   gluPerspective(45.0, whRatio, 0.1f, 500.0f);//建立透视投影矩阵
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  gluLookAt(camera_x+eyex,camera_y+eyey,camera_z+eyez,camera_x,camera_y,camera_z,0.1*upx,0.1*upy,0.1*upz);
 
+  gluLookAt(camera_x+world_center_x+eyex*main_scale,
+            camera_y+eyey*main_scale,
+            camera_z+world_center_z+eyez*main_scale,
+            camera_x+delta_Panx+world_center_x,
+            camera_y,
+            camera_z+delta_Panz+world_center_z,
+            upx,upy,upz);
 
-  glTranslatef(camera_x, camera_y, camera_z);//移到相机位置
-  glScalef(main_scale,main_scale,main_scale);
+  glTranslatef(camera_x+world_center_x, camera_y, camera_z+world_center_z);//移到相机位置
+  glRotatef(global_rotate, 0, 1, 0); //全局旋转动画
+  glTranslatef(-camera_x-world_center_x, -camera_y, -camera_z-world_center_z);//移回原世界中心
+
 
   glScalef(0.005,0.005,0.005);
-  //glTranslatef(main_x, main_y, main_z);
-  glTranslatef(-camera_x, -camera_y, -camera_z);//移会原世界中心
-
 
   for(unsigned int i=0; i<models.size(); i++){
       glLoadName(i+1);
@@ -258,9 +295,6 @@ void GLWidget::selectModel(int x, int y){
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
 
-
-  //glFlush();
-
   hits = glRenderMode(GL_RENDER);
   if(hits)//命中
     processHits(hits, selectBuf);
@@ -270,10 +304,9 @@ void GLWidget::selectModel(int x, int y){
       emit model_select();
     }
 
+  emit sendSelectLightMTL(2);
   emit signal_updateAttr(selectedID);
   glMatrixMode(GL_MODELVIEW);
-  //qDebug()<<"test";
-
 }
 
 
@@ -304,6 +337,7 @@ void GLWidget::mouseReleaseEvent(QMouseEvent *e)
         /*记录上一次的角度*/
         LastAngleZ=CurrentAngleZ;
         LastAngleY=CurrentAngleY;
+        LastPanAngle=PanAngle;
       };break;
     case Qt::RightButton:{
         LastMain_x = main_x;
@@ -345,7 +379,7 @@ void GLWidget::wheelEvent(QWheelEvent *e)//鼠标滑轮
             models[selectedID-1].scale_z -= models[selectedID-1].scale_z*0.1f;
         }
       }
-    else e->delta() > 0 ? main_scale += main_scale*0.1f : main_scale -= main_scale*0.1f;
+    else if(CursorMode == ORBIT) e->delta() > 0 ? main_scale -= main_scale*0.1f : main_scale += main_scale*0.1f;
 
     emit signal_updateAttr(selectedID);
     this->updateGL();
@@ -365,12 +399,6 @@ void GLWidget::mouseDoubleClickEvent(QMouseEvent *e){
 //初始化
 void GLWidget::initializeGL()
 {
-
-//    GLenum err = glewInit();
-//      if(err != GLEW_OK)
-//      {
-//          qDebug()<<glewGetErrorString(err);
-//      }
     setGeometry(0, 0, 910, 660);//设置窗口初始位置和大小
     glShadeModel(GL_FLAT);//设置阴影平滑模式
     glClearColor(0.0, 0.0, 0.0, 0);//改变窗口的背景颜色，不过我这里貌似设置后并没有什么效果
@@ -571,29 +599,33 @@ void GLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    gluLookAt(camera_x+eyex,camera_y+eyey,camera_z+eyez,camera_x,camera_y,camera_z,0.1*upx,0.1*upy,0.1*upz);
+    gluLookAt(camera_x+world_center_x+eyex*main_scale,
+                  camera_y+eyey*main_scale,
+                  camera_z+world_center_z+eyez*main_scale,
+                  camera_x+delta_Panx+world_center_x,
+                  camera_y,
+                  camera_z+delta_Panz+world_center_z,
+                  upx,upy,upz);
 
     setLight();
 
     if(isWireframe)glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //设置线框模式
     else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    drawGrid(0.1, 20);//画一个网格平面
 
-    glTranslatef(camera_x, camera_y, camera_z);//移到相机位置
-    glScalef(main_scale,main_scale,main_scale);
+
+    glTranslatef(camera_x+world_center_x, camera_y, camera_z+world_center_z);//移到相机位置
 
     glPushMatrix();//-----------------------漫游中心----------------------------------
+    glTranslatef((delta_Panx), 0, (delta_Panz));//移到相机位置
     drawCoordinate(); //画一个坐标系
-    glScalef(0.001,0.001,0.001);
-    glRotatef(180.0+CurrentAngleZ*180.0/M_PI, 0, 1, 0);
-    glRotatef(90.0-CurrentAngleY*180.0/M_PI, 1, 0, 0);
-    glTranslatef(-2.0, -8.0, 0.0);
-    //if(models.size()>0) models[0].callDisplayList();
     glPopMatrix();//-------------------------------------
 
+    glRotatef(global_rotate, 0, 1, 0); //全局旋转动画
 
+    glTranslatef(-camera_x-world_center_x, -camera_y, -camera_z-world_center_z);//移回原世界中心
     glScalef(0.005,0.005,0.005);
-    glTranslatef(-camera_x, -camera_y, -camera_z);//移回原世界中心
+
+    drawGrid(0.1*200, 20);//画一个网格平面
 
     for(unsigned int i=0; i<models.size(); i++) {//循环绘制model
         glPushMatrix();
@@ -622,6 +654,9 @@ void GLWidget::paintGL()
           }
         glPopMatrix();
       }
+
+
+    if(beRotate) global_rotate+=1.0f;
 }
 
 //该程序是设置opengl场景透视图，程序中至少被执行一次(程序启动时).
@@ -651,26 +686,26 @@ void GLWidget::keyPressEvent(QKeyEvent *e)
         }break;
         case Qt::Key_W:{
             float delta_x=0.4;
-            camera_x -= delta_x*sin(CurrentAngleZ);// + delta_y*cos(CurrentAngleY)*sin(CurrentAngleZ);
-            camera_z -= delta_x*cos(CurrentAngleZ);// + delta_y*cos(CurrentAngleY)*cos(CurrentAngleZ);
+            camera_x -= delta_x*sin(CurrentAngleZ);
+            camera_z -= delta_x*cos(CurrentAngleZ);
             updateGL();
           };break;
         case Qt::Key_A:{
             float delta_x=0.4;
-            camera_x -= delta_x*cos(CurrentAngleZ);// + delta_y*cos(CurrentAngleY)*sin(CurrentAngleZ);
-            camera_z += delta_x*sin(CurrentAngleZ);// + delta_y*cos(CurrentAngleY)*cos(CurrentAngleZ);
+            camera_x -= delta_x*cos(CurrentAngleZ);
+            camera_z += delta_x*sin(CurrentAngleZ);
             updateGL();
           };break;
         case Qt::Key_S:{
             float delta_x=0.4;
-            camera_x += delta_x*sin(CurrentAngleZ);// + delta_y*cos(CurrentAngleY)*sin(CurrentAngleZ);
-            camera_z += delta_x*cos(CurrentAngleZ);// + delta_y*cos(CurrentAngleY)*cos(CurrentAngleZ);
+            camera_x += delta_x*sin(CurrentAngleZ);
+            camera_z += delta_x*cos(CurrentAngleZ);
             updateGL();
           };break;
         case Qt::Key_D:{
             float delta_x=0.4;
-            camera_x += delta_x*cos(CurrentAngleZ);// + delta_y*cos(CurrentAngleY)*sin(CurrentAngleZ);
-            camera_z -= delta_x*sin(CurrentAngleZ);// + delta_y*cos(CurrentAngleY)*cos(CurrentAngleZ);
+            camera_x += delta_x*cos(CurrentAngleZ);
+            camera_z -= delta_x*sin(CurrentAngleZ);
             updateGL();
           };break;
       default:break;

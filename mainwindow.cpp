@@ -39,6 +39,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->verticalLayout_3->addWidget(widget);
     widget->setFocusPolicy(Qt::ClickFocus);
 
+    ui->actionOrbit->setCheckable(true);
+    ui->actionPan->setCheckable(true);
+    ui->actionOrbit->setChecked(true);
+    ui->actionPan->setChecked(false);
+
     attr = new attributeWidget();
     ui->verticalLayout_4->addWidget(attr);
     initialCatalog();
@@ -64,6 +69,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(objectSubmit(bool)), this, SLOT(updateCatalog(bool)));
     connect(this, SIGNAL(sendSelectOBJ(unsigned int)), widget, SLOT(modelSelect(unsigned int)));
     connect(this, SIGNAL(sendMltSubmit(uint)), this, SLOT(updateCatalogMTL(uint)));
+    connect(this, SIGNAL(sendSelectLightMTL(int)), this, SLOT(on_tabWidget_tabBarClicked(int)));
+    connect(widget, SIGNAL(sendSelectLightMTL(int)), this, SLOT(on_tabWidget_tabBarClicked(int)));
+
 }
 
 void MainWindow::initialTex()
@@ -391,6 +399,7 @@ void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int colu
                    qs+=parent->child(i)->text(0)[j];
                parent->child(i)->setText(0,qs);
            }
+       emit sendSelectLightMTL(3);
        return;
     }
 
@@ -1319,4 +1328,44 @@ void MainWindow::getSelectedTex()
             ui->comboBox->setCurrentIndex(0);
         }
     }
+}
+
+void MainWindow::on_actionOrbit_triggered()
+{
+  //ui->actionOrbit->setCheckable(true);
+  ui->actionOrbit->setChecked(true);
+  ui->actionPan->setChecked(false);
+  widget->CursorMode = ORBIT;
+
+  widget->world_center_x += widget->delta_Panx;
+  widget->world_center_z += widget->delta_Panz;
+
+  widget->CurrentAngleZ += widget->PanAngle;
+  widget->LastAngleZ = widget->CurrentAngleZ;
+  widget->PanAngle = 0;
+  widget->delta_Panx = 0;
+  widget->delta_Panz = 0;
+
+  QVector3D vector1(sin(widget->CurrentAngleY)*sin(widget->CurrentAngleZ),cos(widget->CurrentAngleY),sin(widget->CurrentAngleY)*cos(widget->CurrentAngleZ));
+  vector1=vector1.normalized();  //将坐标单位化
+  widget->eyex=vector1.x();
+  widget->eyey=vector1.y();
+  widget->eyez=vector1.z();
+
+}
+
+void MainWindow::on_actionPan_triggered()
+{
+  ui->actionPan->setChecked(true);
+  ui->actionOrbit->setChecked(false);
+  widget->CursorMode = PAN;
+  widget->lastupx = widget->upx;
+  widget->lastupy = widget->upy;
+  widget->lastupz = widget->upz;
+}
+
+void MainWindow::on_actionRotateAnime_triggered()
+{
+    if(widget->beRotate) widget->beRotate = false;
+    else widget->beRotate = true;
 }

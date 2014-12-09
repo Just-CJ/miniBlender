@@ -12,6 +12,11 @@
 //#include <gl/freeglut.h>
 
 
+enum CursorModeType{
+  ORBIT,
+  PAN
+};
+
 namespace Ui {
 class GLWidget;
 }
@@ -45,6 +50,7 @@ class GLWidget : public QGLWidget
     Q_OBJECT
 
 public:
+    CursorModeType CursorMode;
     bool isWireframe;
     bool enableLight;
     bool addLight;
@@ -54,6 +60,41 @@ public:
     unsigned int selectedID;//场景中被选中的物体
     float lastRotateMatrix[16];     //上一次的旋转矩阵
 
+    bool  beRotate;
+    float global_rotate;
+
+    /*gluLookAt函数中第一组坐标跟第三组坐标*/
+    GLdouble camera_x;
+    GLdouble camera_y;
+    GLdouble camera_z;
+
+    GLdouble eyex;
+    GLdouble eyey;
+    GLdouble eyez;
+
+    GLdouble upx;
+    GLdouble upy;
+    GLdouble upz;
+
+    GLdouble lastupx;
+    GLdouble lastupy;
+    GLdouble lastupz;
+
+    GLdouble delta_Panx;
+    GLdouble delta_Panz;
+
+    GLdouble world_center_x;
+    GLdouble world_center_z;
+
+    float CurrentAngleZ;     //当前与Z轴的夹角
+    float CurrentAngleY;     //当前与Y轴的夹角
+
+    float LastAngleZ;        //上一次与Z轴的夹角
+    float LastAngleY;        //上一次与Y轴的夹角
+
+    GLfloat PanAngle;
+
+
     explicit GLWidget(QGLWidget *parent = 0);
     ~GLWidget();
 
@@ -61,6 +102,7 @@ public:
 
 signals:
     void model_select();
+    void sendSelectLightMTL(int index);
     void signal_updateAttr(unsigned int selectedID);
 
 //Added to select by treeView --Lkx
@@ -104,25 +146,7 @@ private:
     QPoint StartPoint;     //记录鼠标按下的点
     QPoint EndPoint;       //鼠标移动过程中的点
 
-    /*gluLookAt函数中第一组坐标跟第三组坐标*/
-    GLdouble camera_x;
-    GLdouble camera_y;
-    GLdouble camera_z;
 
-    GLdouble eyex;
-    GLdouble eyey;
-    GLdouble eyez;
-
-    GLdouble upx;
-    GLdouble upy;
-    GLdouble upz;
-
-
-    float CurrentAngleZ;     //当前与Z轴的夹角
-    float CurrentAngleY;     //当前与Y轴的夹角
-
-    float LastAngleZ;        //上一次与Z轴的夹角
-    float LastAngleY;        //上一次与Y轴的夹角
 
     GLfloat main_x;          //全局xyz偏移
     GLfloat main_y;
@@ -136,8 +160,7 @@ private:
     GLfloat LastOBJ_y;
     GLfloat LastOBJ_z;
 
-
-
+    GLfloat LastPanAngle;
 
     bool objRotate;
     GLfloat objRotate_x;
