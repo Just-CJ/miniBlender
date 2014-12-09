@@ -25,19 +25,22 @@ SOURCES += main.cpp\
     OBJ.cpp \
     mainwindow.cpp \
     enity.cpp \
-    attributewidget.cpp
+    attributewidget.cpp \
+    renamedialog.cpp
 
 HEADERS  += \
     glwidget.h \
     OBJ.h \
     mainwindow.h \
     enity.h \
-    attributewidget.h
+    attributewidget.h \
+    renamedialog.h
 
 FORMS    += \
     glwidget.ui \
     mainwindow.ui \
-    attributewidget.ui
+    attributewidget.ui \
+    renamedialog.ui
 
 RESOURCES += \
     Icons.qrc

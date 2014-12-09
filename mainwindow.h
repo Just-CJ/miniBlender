@@ -3,8 +3,13 @@
 
 #include <QMainWindow>
 #include <QTreeWidget>
+#include <QDialog>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
 #include "glwidget.h"
 #include "attributewidget.h"
+#include "renamedialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -16,6 +21,7 @@ class MainWindow : public QMainWindow
 
 public:
     GLWidget *widget;
+    renameDialog *rmDialog;
     attributeWidget *attr;
     explicit MainWindow(QWidget *parent = 0);
     int textureNumber;
@@ -28,6 +34,8 @@ signals:
     void objectSubmit(bool EntityOrObject);
 
     void sendSelectOBJ(unsigned int SelectID);
+
+    void sendMltSubmit(unsigned int SelectID);
 
 private slots:
     void initSpinBoxAndSlider();
@@ -59,6 +67,8 @@ private slots:
     void updateCatalog(bool EntityOrObject);
 
     void initialCatalog();
+
+    void updateCatalogMTL(unsigned int SelectID);
 
     void on_actionAdd_cube_triggered();
 
@@ -158,7 +168,13 @@ private slots:
 
     void on_actionLight_on_off_triggered();
 
+    void renameOBJ(QString newName);
+
+    void on_actionRename_triggered();
+
 private:
+    void unselectLights();
+
     Ui::MainWindow *ui;
 };
 

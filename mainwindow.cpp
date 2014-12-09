@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
     initialCatalog();
     indexCounter = 0;
 
+    rmDialog = new renameDialog();
+
     textureNumber=0;
     selectedLight=false;
 
@@ -45,13 +47,24 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(widget, SIGNAL(model_select()), this, SLOT(getSelectedItem()));
     connect(widget, SIGNAL(signal_updateAttr(uint)), this, SLOT(updateAttribute(uint)));
     connect(attr, SIGNAL(reshape()), this, SLOT(reshapeEntity()));
+    connect(rmDialog, SIGNAL(rename(QString)), this, SLOT(renameOBJ(QString)));
     connect(this, SIGNAL(objectSubmit(bool)), this, SLOT(updateCatalog(bool)));
     connect(this, SIGNAL(sendSelectOBJ(unsigned int)), widget, SLOT(modelSelect(unsigned int)));
+    connect(this, SIGNAL(sendMltSubmit(uint)), this, SLOT(updateCatalogMTL(uint)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+void MainWindow::unselectLights()
+{
+    QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(2);
+    for(int i = 0; i< parent->childCount(); i++){
+        QString qs = parent->child(i)->text(0);
+        qs.replace("*", "");
+        parent->child(i)->setText(0,qs);
+    }
 }
 
 void MainWindow::getSelectedItem()
@@ -274,8 +287,10 @@ void MainWindow::updateCatalog(bool EntityOrObject)
         attribute ent;
         ent.modelName = name;
         ent.modelIndex = indexCounter;
-        entityAttr.push_back(ent);
         QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
+        QTreeWidgetItem *objMtl = new QTreeWidgetItem(QStringList()<<QString::fromStdString(models[indexCounter].objects[0].mtlname));
+        entityAttr.push_back(ent);
+        newObj->addChild(objMtl);
         topItem->addChild(newObj);
         indexCounter++;
     }
@@ -287,24 +302,62 @@ void MainWindow::updateCatalog(bool EntityOrObject)
         obj.modelIndex = indexCounter;
         objAttr.push_back(obj);
         QTreeWidgetItem *newObj = new QTreeWidgetItem(QStringList()<<name);
+        for(unsigned int i = 0; i< models[indexCounter].mtls.size(); i++){
+            QTreeWidgetItem *objMtl = new QTreeWidgetItem(QStringList()<<QString::fromStdString(models[indexCounter].mtls[i].mtlname));
+            newObj->addChild(objMtl);
+        }
         topItem->addChild(newObj);
 
         indexCounter++;
     }
 }
 
+void MainWindow::updateCatalogMTL(unsigned int SelectID)
+{
+    qDebug()<<SelectID;
+    //首先选择控件
+    int id = SelectID - 1;
+    if(id < 0){
+        curItem = NULL;
+        return;
+    }
+    for(unsigned int i = 0; i< objAttr.size(); i++){
+        if(objAttr[i].modelIndex == id){
+            QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(0);
+            curItem = parent->child(i);
+        }
+    }
+    for(unsigned int i = 0; i< entityAttr.size(); i++){
+        if(entityAttr[i].modelIndex == id){
+            QTreeWidgetItem *parent = ui->treeWidget->topLevelItem(1);
+            curItem = parent->child(i);
+        }
+    }
+    qDebug()<<"end";
+
+    curItem->child(0)->setText(0,QString::fromStdString(models[id].mtls[0].mtlname));
+}
+
 void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     QTreeWidgetItem *parent = item->parent();
-    if(parent == NULL)
+    if(parent == NULL || (parent->text(column) != "Objects" && parent->text(column) != "Entities" && parent->text(column) != "Lights"))
         return;
+
     int index = parent->indexOfChild(item);
-    int currentModelID;
-    if(parent->text(column) == "Objects")
+    unsigned int currentModelID;
+    if(parent->text(column) == "Objects"){
        currentModelID = objAttr[index].modelIndex;
-    if(parent->text(column) == "Entities")
+       if(currentModelID + 1 == widget->selectedID)
+           return;
+    }
+    if(parent->text(column) == "Entities"){
        currentModelID = entityAttr[index].modelIndex;
+       if(currentModelID + 1 == widget->selectedID)
+           return;
+    }
     if(parent->text(column) == "Lights"){
+       unselectLights();
        selectedLID=lightIDs[index];
        selectedLight=true;
        QString qs="*"+item->text(0);
@@ -317,9 +370,9 @@ void MainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int colu
                    qs+=parent->child(i)->text(0)[j];
                parent->child(i)->setText(0,qs);
            }
+       return;
     }
-    else
-//    qDebug()<<currentModelID;
+
     emit sendSelectOBJ(currentModelID + 1);
 }
 
@@ -495,11 +548,16 @@ void MainWindow::on_treeWidget_customContextMenuRequested(const QPoint &pos)
     curItem = ui->treeWidget->itemAt(pos);
     if(curItem==NULL || curItem->parent()==NULL)
         return;
+    else if(curItem->parent()->text(0) != "Objects" && curItem->parent()->text(0) != "Entities" && curItem->parent()->text(0) != "Lights" )
+        return;
     //选中当前物体
     on_treeWidget_itemDoubleClicked(curItem,0);
+    qDebug()<<widget->selectedID;
+
     QMenu *popMenu = new QMenu(this);
     popMenu->addAction(ui->actionSelect);
     popMenu->addAction(ui->actionDelete);
+    popMenu->addAction(ui->actionRename);
     popMenu->exec(QCursor::pos());
 }
 
@@ -515,6 +573,7 @@ void MainWindow::on_actionSelect_triggered()
     if(parent->text(0) == "Entities")
        currentModelID = entityAttr[index].modelIndex;
     if(parent->text(0) == "Lights"){
+       unselectLights();
        selectedLID=lightIDs[index];
        selectedLight=true;
        QString qs="*"+curItem->text(0);
@@ -1010,6 +1069,7 @@ void MainWindow::on_emission3_valueChanged(double arg1)
 
 void MainWindow::on_pushButton_2_clicked()
 {
+
     QString fileName = QFileDialog::getOpenFileName(this,tr("open file"),"E:/Images",tr("BMP file(*.bmp)"));
     QImage tex, buf;
     if(!buf.load(fileName)){
@@ -1029,13 +1089,15 @@ void MainWindow::on_pushButton_2_clicked()
         for(it=models[id].objects.begin();it<models[id].objects.end();it++){
             (*itm).texID=(*it).texID=texture[i];
             QString qs="texture"+QString::number(i+1);
-            (*itm).mtlname=(*it).mtlname="texture";
+            (*itm).mtlname=(*it).mtlname=qs.toStdString();
             (*itm).map_Kd_addr=(*it).map_Kd_addr=fileName;
             itm++;
         }
         models[id].genDisplayList();
     }
     textureNumber++;
+
+    emit sendMltSubmit(widget->selectedID);
 }
 
 void MainWindow::on_lambient1_valueChanged(double arg1)
@@ -1124,4 +1186,14 @@ void MainWindow::on_actionLight_on_off_triggered()
         widget->enableLight=false;
     else
         widget->enableLight=true;
+}
+
+void MainWindow::on_actionRename_triggered()
+{
+    rmDialog->show();
+}
+
+void MainWindow::renameOBJ(QString newName)
+{
+    curItem->setText(0, newName);
 }

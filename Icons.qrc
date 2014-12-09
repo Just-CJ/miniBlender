@@ -9,5 +9,6 @@
         <file>Icons/wireMode.ico</file>
         <file>Icons/Fresh.ico</file>
         <file>Icons/delete.ico</file>
+        <file>Icons/addLight.png</file>
     </qresource>
 </RCC>

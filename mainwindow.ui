@@ -122,8 +122,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>311</width>
-         <height>193</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <attribute name="label">
@@ -852,7 +852,7 @@
        <rect>
         <x>10</x>
         <y>160</y>
-        <width>281</width>
+        <width>296</width>
         <height>41</height>
        </rect>
       </property>
@@ -1074,7 +1074,7 @@
   <action name="actionAdd_light">
    <property name="icon">
     <iconset resource="Icons.qrc">
-     <normaloff>:/new/prefix1/Icons/lightOn.ico</normaloff>:/new/prefix1/Icons/lightOn.ico</iconset>
+     <normaloff>:/new/prefix1/Icons/addLight.png</normaloff>:/new/prefix1/Icons/addLight.png</iconset>
    </property>
    <property name="text">
     <string>Add light</string>
@@ -1140,6 +1140,11 @@
    </property>
    <property name="text">
     <string>Light on/off</string>
+   </property>
+  </action>
+  <action name="actionRename">
+   <property name="text">
+    <string>Rename</string>
    </property>
   </action>
  </widget>
