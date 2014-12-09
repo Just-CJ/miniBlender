@@ -17,5 +17,9 @@
         <file>Icons/paste.ico</file>
         <file>Icons/prism.ico</file>
         <file>Icons/sphere.ico</file>
+        <file>Icons/Pan.png</file>
+        <file>Icons/selectMode.ico</file>
+        <file>Icons/20141210052618110_easyicon_net_48.ico</file>
+        <file>Icons/20141210053806758_easyicon_net_96.ico</file>
     </qresource>
 </RCC>

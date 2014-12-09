@@ -37,6 +37,8 @@ signals:
 
     void sendMltSubmit(unsigned int SelectID);
 
+    void sendSelectLightMTL(int index);
+
 private slots:
     void initSpinBoxAndSlider();
 
@@ -179,6 +181,12 @@ private slots:
     void on_comboBox_currentIndexChanged(int index);
 
     void getSelectedTex();
+
+    void on_actionOrbit_triggered();
+
+    void on_actionPan_triggered();
+
+    void on_actionRotateAnime_triggered();
 
 private:
     void unselectLights();
