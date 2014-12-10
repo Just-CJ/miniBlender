@@ -555,18 +555,14 @@ void exportOBJ(QString fileName){
                 y = models[i].vpoints[index_v].y -models[i].objCenter[1];
                 z = models[i].vpoints[index_v].z -models[i].objCenter[2];
                 float *m = models[i].rotateMatrix;
-                x1 = m[0]*x + m[1]*y + m[2]*z + m[3];
-                y1 = m[4]*x + m[5]*y + m[6]*z + m[7];
-                z1 = m[8]*x + m[9]*y + m[10]*z + m[11];
-                x1 = models[i].scale*x1 + models[i].offset_x;
-                y1 = models[i].scale*y1 + models[i].offset_y;
-                z1 = models[i].scale*z1 + models[i].offset_z;
+                x1 = (m[0]*x + m[4]*y + m[8]*z + m[12]);
+                y1 = (m[1]*x + m[5]*y + m[9]*z + m[13]);
+                z1 = (m[2]*x + m[6]*y + m[10]*z + m[14]);
 
-                //x = models[i].scale*(models[i].vpoints[index_v].x -models[i].objCenter[0])+models[i].offset_x;
-                //y = models[i].scale*(models[i].vpoints[index_v].y -models[i].objCenter[1])+models[i].offset_y;
-                //z = models[i].scale*(models[i].vpoints[index_v].z -models[i].objCenter[2])+models[i].offset_z;
+                x1 = models[i].scale_x*x1 + models[i].offset_x;
+                y1 = models[i].scale_y*y1 + models[i].offset_y;
+                z1 = models[i].scale_z*z1 + models[i].offset_z;
 
-                //out<<"v "<<models[i].vpoints[index_v].x<<" "<<models[i].vpoints[index_v].y<<" "<<models[i].vpoints[index_v].z<<endl;
                 out<<"v "<<x1<<" "<<y1<<" "<<z1<<endl;
                 index_v++;
                 }
@@ -645,12 +641,12 @@ void exportOBJ(QString fileName){
             z = models[i].vpoints[k].z -models[i].objCenter[2];
 
             float *m = models[i].rotateMatrix;
-            x1 = m[0]*x + m[1]*y + m[2]*z + m[3];
-            y1 = m[4]*x + m[5]*y + m[6]*z + m[7];
-            z1 = m[8]*x + m[9]*y + m[10]*z + m[11];
-            x1 = models[i].scale*x1 + models[i].offset_x;
-            y1 = models[i].scale*y1 + models[i].offset_y;
-            z1 = models[i].scale*z1 + models[i].offset_z;
+            x1 = (m[0]*x + m[4]*y + m[8]*z + m[12]);
+            y1 = (m[1]*x + m[5]*y + m[9]*z + m[13]);
+            z1 = (m[2]*x + m[6]*y + m[10]*z + m[14]);
+            x1 = models[i].scale_x*x1 + models[i].offset_x;
+            y1 = models[i].scale_y*y1 + models[i].offset_y;
+            z1 = models[i].scale_z*z1 + models[i].offset_z;
             out<<"v "<<x1<<" "<<y1<<" "<<z1<<endl;
 
             //out<<"v "<<models[i].vpoints[k].x<<" "<<models[i].vpoints[k].y<<" "<<models[i].vpoints[k].z<<endl;
