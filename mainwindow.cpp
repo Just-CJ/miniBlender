@@ -974,6 +974,7 @@ void MainWindow::on_ambient1_valueChanged(double arg1)
             (*itm).ambient[0]=(*it).ambient[0]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -988,6 +989,7 @@ void MainWindow::on_ambient2_valueChanged(double arg1)
             (*itm).ambient[1]=(*it).ambient[1]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -1003,6 +1005,7 @@ void MainWindow::on_ambient3_valueChanged(double arg1)
             (*itm).ambient[2]=(*it).ambient[2]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -1018,6 +1021,7 @@ void MainWindow::on_diffuse1_valueChanged(double arg1)
             (*itm).diffuse[0]=(*it).diffuse[0]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -1032,6 +1036,7 @@ void MainWindow::on_diffuse2_valueChanged(double arg1)
             (*itm).diffuse[1]=(*it).diffuse[1]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -1046,6 +1051,7 @@ void MainWindow::on_diffuse3_valueChanged(double arg1)
             (*itm).diffuse[2]=(*it).diffuse[2]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -1060,6 +1066,7 @@ void MainWindow::on_specular1_valueChanged(double arg1)
             (*itm).specular[0]=(*it).specular[0]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -1074,6 +1081,7 @@ void MainWindow::on_specular2_valueChanged(double arg1)
             (*itm).specular[1]=(*it).specular[1]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -1088,6 +1096,7 @@ void MainWindow::on_specular3_valueChanged(double arg1)
            (*itm).specular[2]=(*it).specular[2]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -1102,6 +1111,7 @@ void MainWindow::on_emission1_valueChanged(double arg1)
             (*itm).emission[0]=(*it).emission[0]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -1116,6 +1126,7 @@ void MainWindow::on_emission2_valueChanged(double arg1)
             (*itm).emission[1]=(*it).emission[1]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
@@ -1130,6 +1141,7 @@ void MainWindow::on_emission3_valueChanged(double arg1)
             (*itm).emission[2]=(*it).emission[2]=arg1;
             itm++;
         }
+        models[id].deleteDisplayList();
         models[id].genDisplayList();
     }
 }
