@@ -255,10 +255,10 @@ void loadMTL(string objAddr, string mtlAddr){
       else if(key == "Ka"){
           is>>ambient[0]>>ambient[1]>>ambient[2];
         }
-      else if(key == "Ks"){
+      else if(key == "Kd"){
           is>>diffuse[0]>>diffuse[1]>>diffuse[2];
         }
-      else if(key == "Kd"){
+      else if(key == "Ks"){
           is>>specular[0]>>specular[1]>>specular[2];
         }
       else if(key == "Ke"){

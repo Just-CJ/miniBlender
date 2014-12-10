@@ -926,6 +926,7 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
             ui->emission2->setValue(0);
             ui->emission3->setValue(0);
         }
+
     }
     if(index==3){
         if(selectedLight){
