@@ -6,7 +6,6 @@
 #include "OBJ.h"
 #include <QFileDialog>
 #include <vector>
-#include <QDebug>
 
 using namespace std;
 extern vector<model> models;
@@ -69,8 +68,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(objectSubmit(bool)), this, SLOT(updateCatalog(bool)));
     connect(this, SIGNAL(sendSelectOBJ(unsigned int)), widget, SLOT(modelSelect(unsigned int)));
     connect(this, SIGNAL(sendMltSubmit(uint)), this, SLOT(updateCatalogMTL(uint)));
-    connect(this, SIGNAL(sendSelectLightMTL(int)), this, SLOT(on_tabWidget_tabBarClicked(int)));
-    connect(widget, SIGNAL(sendSelectLightMTL(int)), this, SLOT(on_tabWidget_tabBarClicked(int)));
+    connect(this, SIGNAL(sendSelectLightMTL(int)), this, SLOT(tabWidget_Change(int)));
+    connect(widget, SIGNAL(sendSelectLightMTL(int)), this, SLOT(tabWidget_Change(int)));
 
 }
 
@@ -116,8 +115,6 @@ void MainWindow::getSelectedItem()
             curItem = parent->child(i);
         }
     }
-//    qDebug()<<curItem->text(0);
-//    qDebug()<<id;
 }
 
 void MainWindow::on_actionImport_OBJ_File_triggered()
@@ -344,7 +341,6 @@ void MainWindow::updateCatalog(bool EntityOrObject)
 
 void MainWindow::updateCatalogMTL(unsigned int SelectID)
 {
-//    qDebug()<<SelectID;
     //首先选择控件
     int id = SelectID - 1;
     if(id < 0){
@@ -582,7 +578,6 @@ void MainWindow::on_treeWidget_customContextMenuRequested(const QPoint &pos)
         return;
     //选中当前物体
     on_treeWidget_itemDoubleClicked(curItem,0);
-//    qDebug()<<widget->selectedID;
 
     QMenu *popMenu = new QMenu(this);
     popMenu->addAction(ui->actionSelect);
@@ -643,7 +638,6 @@ void MainWindow::on_actionDelete_triggered()
     if(parent->text(0) == "Lights"){
        widget->lights[lightIDs[index]].isOn=false;
        for(int i=0;i<8;i++)
-//       qDebug()<<widget->lights[i].isOn;
        widget->lightnumber--;
        delete curItem;
        if(selectedLight && lightIDs[index]==selectedLID)
@@ -893,9 +887,21 @@ void MainWindow::on_actionSave_Project_triggered()
     file.close();
 }
 
-void MainWindow::on_tabWidget_tabBarClicked(int index)
+void MainWindow::tabWidget_Change(int index)
 {
     if(index==2){
+            disconnect(ui->ambient1, SIGNAL(valueChanged(double)), this, SLOT(on_ambient1_valueChanged(double)));
+            disconnect(ui->ambient2, SIGNAL(valueChanged(double)), this, SLOT(on_ambient2_valueChanged(double)));
+            disconnect(ui->ambient3, SIGNAL(valueChanged(double)), this, SLOT(on_ambient3_valueChanged(double)));
+            disconnect(ui->diffuse1, SIGNAL(valueChanged(double)), this, SLOT(on_diffuse1_valueChanged(double)));
+            disconnect(ui->diffuse2, SIGNAL(valueChanged(double)), this, SLOT(on_diffuse2_valueChanged(double)));
+            disconnect(ui->diffuse3, SIGNAL(valueChanged(double)), this, SLOT(on_diffuse3_valueChanged(double)));
+            disconnect(ui->specular1, SIGNAL(valueChanged(double)), this, SLOT(on_specular1_valueChanged(double)));
+            disconnect(ui->specular2, SIGNAL(valueChanged(double)), this, SLOT(on_specular2_valueChanged(double)));
+            disconnect(ui->specular3, SIGNAL(valueChanged(double)), this, SLOT(on_specular3_valueChanged(double)));
+            disconnect(ui->emission1, SIGNAL(valueChanged(double)), this, SLOT(on_emission1_valueChanged(double)));
+            disconnect(ui->emission2, SIGNAL(valueChanged(double)), this, SLOT(on_emission2_valueChanged(double)));
+            disconnect(ui->emission3, SIGNAL(valueChanged(double)), this, SLOT(on_emission3_valueChanged(double)));
         int id=widget->selectedID-1;
         if(id>=0){
             vector<object>::iterator it=models[id].objects.begin();
@@ -927,8 +933,35 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
             ui->emission3->setValue(0);
         }
 
+        connect(ui->ambient1, SIGNAL(valueChanged(double)), this, SLOT(on_ambient1_valueChanged(double)));
+        connect(ui->ambient2, SIGNAL(valueChanged(double)), this, SLOT(on_ambient2_valueChanged(double)));
+        connect(ui->ambient3, SIGNAL(valueChanged(double)), this, SLOT(on_ambient3_valueChanged(double)));
+        connect(ui->diffuse1, SIGNAL(valueChanged(double)), this, SLOT(on_diffuse1_valueChanged(double)));
+        connect(ui->diffuse2, SIGNAL(valueChanged(double)), this, SLOT(on_diffuse2_valueChanged(double)));
+        connect(ui->diffuse3, SIGNAL(valueChanged(double)), this, SLOT(on_diffuse3_valueChanged(double)));
+        connect(ui->specular1, SIGNAL(valueChanged(double)), this, SLOT(on_specular1_valueChanged(double)));
+        connect(ui->specular2, SIGNAL(valueChanged(double)), this, SLOT(on_specular2_valueChanged(double)));
+        connect(ui->specular3, SIGNAL(valueChanged(double)), this, SLOT(on_specular3_valueChanged(double)));
+        connect(ui->emission1, SIGNAL(valueChanged(double)), this, SLOT(on_emission1_valueChanged(double)));
+        connect(ui->emission2, SIGNAL(valueChanged(double)), this, SLOT(on_emission2_valueChanged(double)));
+        connect(ui->emission3, SIGNAL(valueChanged(double)), this, SLOT(on_emission3_valueChanged(double)));
+
     }
     if(index==3){
+        disconnect(ui->lambient1, SIGNAL(valueChanged(double)), this, SLOT(on_lambient1_valueChanged(double)));
+        disconnect(ui->lambient2, SIGNAL(valueChanged(double)), this, SLOT(on_lambient2_valueChanged(double)));
+        disconnect(ui->lambient3, SIGNAL(valueChanged(double)), this, SLOT(on_lambient3_valueChanged(double)));
+        disconnect(ui->ldiffuse1, SIGNAL(valueChanged(double)), this, SLOT(on_ldiffuse1_valueChanged(double)));
+        disconnect(ui->ldiffuse2, SIGNAL(valueChanged(double)), this, SLOT(on_ldiffuse2_valueChanged(double)));
+        disconnect(ui->ldiffuse3, SIGNAL(valueChanged(double)), this, SLOT(on_ldiffuse3_valueChanged(double)));
+        disconnect(ui->lspecular1, SIGNAL(valueChanged(double)), this, SLOT(on_lspecular1_valueChanged(double)));
+        disconnect(ui->lspecular2, SIGNAL(valueChanged(double)), this, SLOT(on_lspecular2_valueChanged(double)));
+        disconnect(ui->lspecular3, SIGNAL(valueChanged(double)), this, SLOT(on_lspecular3_valueChanged(double)));
+        disconnect(ui->lposition1, SIGNAL(valueChanged(double)), this, SLOT(on_lposition1_valueChanged(double)));
+        disconnect(ui->lposition2, SIGNAL(valueChanged(double)), this, SLOT(on_lposition2_valueChanged(double)));
+        disconnect(ui->lposition3, SIGNAL(valueChanged(double)), this, SLOT(on_lposition3_valueChanged(double)));
+        disconnect(ui->intensity, SIGNAL(valueChanged(double)), this, SLOT(on_intensity_valueChanged(double)));
+
         if(selectedLight){
             int i=selectedLID;
             light l=widget->lights[i];
@@ -961,6 +994,20 @@ void MainWindow::on_tabWidget_tabBarClicked(int index)
             ui->lposition3->setValue(0);
             ui->intensity->setValue(0);
        }
+
+        connect(ui->lambient1, SIGNAL(valueChanged(double)), this, SLOT(on_lambient1_valueChanged(double)));
+        connect(ui->lambient2, SIGNAL(valueChanged(double)), this, SLOT(on_lambient2_valueChanged(double)));
+        connect(ui->lambient3, SIGNAL(valueChanged(double)), this, SLOT(on_lambient3_valueChanged(double)));
+        connect(ui->ldiffuse1, SIGNAL(valueChanged(double)), this, SLOT(on_ldiffuse1_valueChanged(double)));
+        connect(ui->ldiffuse2, SIGNAL(valueChanged(double)), this, SLOT(on_ldiffuse2_valueChanged(double)));
+        connect(ui->ldiffuse3, SIGNAL(valueChanged(double)), this, SLOT(on_ldiffuse3_valueChanged(double)));
+        connect(ui->lspecular1, SIGNAL(valueChanged(double)), this, SLOT(on_lspecular1_valueChanged(double)));
+        connect(ui->lspecular2, SIGNAL(valueChanged(double)), this, SLOT(on_lspecular2_valueChanged(double)));
+        connect(ui->lspecular3, SIGNAL(valueChanged(double)), this, SLOT(on_lspecular3_valueChanged(double)));
+        connect(ui->lposition1, SIGNAL(valueChanged(double)), this, SLOT(on_lposition1_valueChanged(double)));
+        connect(ui->lposition2, SIGNAL(valueChanged(double)), this, SLOT(on_lposition2_valueChanged(double)));
+        connect(ui->lposition3, SIGNAL(valueChanged(double)), this, SLOT(on_lposition3_valueChanged(double)));
+        connect(ui->intensity, SIGNAL(valueChanged(double)), this, SLOT(on_intensity_valueChanged(double)));
     }
 }
 
@@ -1304,7 +1351,7 @@ void MainWindow::on_actionPaste_triggered()
 
 void MainWindow::on_comboBox_currentIndexChanged(int index)
 {
-    qDebug()<<index;
+    //qDebug()<<index;
     if(widget->selectedID == 0)
         return;
     if(index == 0){

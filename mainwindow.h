@@ -114,7 +114,7 @@ private slots:
 
     void on_actionSave_Project_triggered();
 
-    void on_tabWidget_tabBarClicked(int index);
+    void tabWidget_Change(int index);
 
     void on_ambient1_valueChanged(double arg1);
 

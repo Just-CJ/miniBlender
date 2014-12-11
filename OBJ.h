@@ -109,7 +109,7 @@ class model{//基本对象
     void deleteDisplayList();
     void drawOBJ();
     void callDisplayList();
-    //void setMaterial(GLfloat *ambient,GLfloat *diffuse,GLfloat *specular,GLfloat *emission);
+
     model();
     ~model();
 

@@ -5,7 +5,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <QDebug>
 #include <QPoint>
 #include <qmath.h>
 #include <QVector3D>
@@ -239,8 +238,8 @@ void GLWidget::modelSelect(unsigned int SelectedID){
         emit model_select();
     }
 
-    //emit sendSelectLightMTL(2);
-    //emit signal_updateAttr(selectedID);
+    emit sendSelectLightMTL(2);
+    emit signal_updateAttr(selectedID);
 
 }
 
@@ -304,7 +303,7 @@ void GLWidget::selectModel(int x, int y){
       emit model_select();
     }
 
-  //emit sendSelectLightMTL(2);
+  emit sendSelectLightMTL(2);
   emit signal_updateAttr(selectedID);
   glMatrixMode(GL_MODELVIEW);
 }

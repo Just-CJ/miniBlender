@@ -2,9 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <QString>
-#include <QDebug>
 #include <QImage>
 #include <QFileDialog>
+#include <QTextStream>
 
 #include <GL/glew.h>
 #define GLUT_DISABLE_ATEXIT_HACK
@@ -64,7 +64,6 @@ model::~model(){
 
 
 void loadOBJ(string fileAddr){
-  //models.clear();
 
   model tmpmodel;
   models.push_back(tmpmodel);
@@ -176,9 +175,6 @@ void loadOBJ(string fileAddr){
               objStart = true;
               is>>mtlname;
               objSize = 0;
-              //v_num = 0;
-              //vn_num = 0;
-              //vt_num = 0;
             }
         }
     }
@@ -555,7 +551,7 @@ void exportOBJ(QString fileName){
                 y = models[i].vpoints[index_v].y -models[i].objCenter[1];
                 z = models[i].vpoints[index_v].z -models[i].objCenter[2];
                 float *m = models[i].rotateMatrix;
-                x1 = (m[0]*x + m[4]*y + m[8]*z + m[12]);
+                x1 = (m[0]*x + m[4]*y + m[8]*z + m[12]);//乘以旋转矩阵
                 y1 = (m[1]*x + m[5]*y + m[9]*z + m[13]);
                 z1 = (m[2]*x + m[6]*y + m[10]*z + m[14]);
 
@@ -738,8 +734,8 @@ void exportMTL(QString fileName){
                   workdir.mkdir(texDir);
                   workdir.cd(texDir);
                 }
-              qDebug()<<workdir.absolutePath()+"/"+tex.dirName();
-              qDebug()<<QFile::copy(models[i].mtls[j].map_Kd_addr, workdir.path()+"/"+tex.dirName());
+              workdir.absolutePath()+"/"+tex.dirName();
+              QFile::copy(models[i].mtls[j].map_Kd_addr, workdir.path()+"/"+tex.dirName());
               workdir.cdUp();
               out<<"map_Kd "<<texDir<<"\\"<<tex.dirName()<<endl;
             }
